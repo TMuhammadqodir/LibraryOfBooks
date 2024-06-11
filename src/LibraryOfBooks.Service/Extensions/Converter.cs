@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-namespace LibraryOfBooks.Service.Helpers;
+namespace LibraryOfBooks.Service.Extensions;
 
 public static class Converter
 {
