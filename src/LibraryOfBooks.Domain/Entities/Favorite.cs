@@ -2,7 +2,7 @@
 
 namespace LibraryOfBooks.Domain.Entities;
 
-public class Favourite : Auditable
+public class Favorite : Auditable
 {
     public long UserId { get; set; }
     public User User { get; set; }
