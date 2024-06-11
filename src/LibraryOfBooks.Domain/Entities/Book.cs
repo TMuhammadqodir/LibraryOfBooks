@@ -2,7 +2,7 @@
 
 namespace LibraryOfBooks.Domain.Entities;
 
-internal class Book : Auditable
+public class Book : Auditable
 {
     public string Title { get; set; }
     public string Author { get; set; }

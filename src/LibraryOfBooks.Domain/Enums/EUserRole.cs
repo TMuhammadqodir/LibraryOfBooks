@@ -1,6 +1,6 @@
 ﻿namespace LibraryOfBooks.Domain.Enums;
 
-internal enum EUserRole
+public enum EUserRole
 {
     User = 1,
     Admin,

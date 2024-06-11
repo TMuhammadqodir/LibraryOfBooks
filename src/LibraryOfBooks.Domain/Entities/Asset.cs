@@ -2,7 +2,7 @@
 
 namespace LibraryOfBooks.Domain.Entities;
 
-internal class Asset : Auditable
+public class Asset : Auditable
 {
     public string FileName { get; set; }
     public string FilePath { get; set; }
