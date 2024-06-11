@@ -1,6 +1,6 @@
 ﻿using LibraryOfBooks.Domain.Enums;
 
-namespace LibraryOfBooks.WebApi.Models;
+namespace LibraryOfBooks.Service.DTOs.Users;
 
 public class UserResponseDto
 {
