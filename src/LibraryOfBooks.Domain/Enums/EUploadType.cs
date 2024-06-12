@@ -1,6 +1,6 @@
 ﻿namespace LibraryOfBooks.Domain.Enums;
 
-public enum EUploatType
+public enum EUploadType
 {
     File = 1,
     Image
