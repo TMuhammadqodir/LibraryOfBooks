@@ -17,20 +17,32 @@ public class BookService : IBookService
     private readonly IMapper mapper;
     private readonly IAssetService assetService;
     private readonly IRepository<Book> bookRepository;
+    private readonly IRepository<User> userRepository;
+    private readonly IRepository<Favorite> favoriteRepository;
     private readonly IRepository<BookCategory> categoryRepository;
 
-    public BookService(IMapper mapper, IRepository<Book> bookRepository, IRepository<BookCategory> categoryRepository, IAssetService assetService)
+    public BookService(IMapper mapper,
+        IRepository<Book> bookRepository,
+        IRepository<BookCategory> categoryRepository,
+        IRepository<User> userRepository,
+        IRepository<Favorite> favoriteRepository,
+        IAssetService assetService)
     {
         this.mapper = mapper;
         this.assetService = assetService;
         this.bookRepository = bookRepository;
         this.categoryRepository = categoryRepository;
+        this.userRepository = userRepository;
+        this.favoriteRepository = favoriteRepository;
     }
 
     public async ValueTask<BookResultDto> AddAsync(BookCreationDto dto)
     {
         var category = await this.categoryRepository.SelectAsync(c => c.Id.Equals(dto.CategoryId))
-            ?? throw new NotFoundException("Content is not found");
+            ?? throw new NotFoundException("Category is not found");
+
+        var user = await this.userRepository.SelectAsync(c => c.Id.Equals(dto.UserId))
+            ?? throw new NotFoundException("user is not found");
 
         var updloadedImage = await this.assetService.UploadAsync(new AssetCreationDto { FormFile = dto.Image }, EUploadType.Image);
         var updloadedFile = await this.assetService.UploadAsync(new AssetCreationDto { FormFile = dto.File }, EUploadType.File);
@@ -42,6 +54,8 @@ public class BookService : IBookService
             Description = dto.Description,
             Category = category,
             CategoryId = dto.CategoryId,
+            User = user,
+            UserId = dto.UserId,
             Image = updloadedImage,
             ImageId = updloadedImage.Id,
             File = updloadedFile,
@@ -55,7 +69,8 @@ public class BookService : IBookService
 
     public async ValueTask<BookResultDto> RetrieveByIdAsync(long id)
     {
-        var book = await this.bookRepository.SelectAsync(expression: b => b.Id.Equals(id), includes: new[] { "Image", "File" })
+        var book = await this.bookRepository.SelectAsync(expression: b => b.Id.Equals(id),
+            includes: new[] { "Image", "File" })
             ?? throw new NotFoundException("This book is not found");
 
         return this.mapper.Map<BookResultDto>(book);
@@ -63,7 +78,8 @@ public class BookService : IBookService
 
     public async ValueTask<bool> DeleteAsync(long id)
     {
-        var book = await this.bookRepository.SelectAsync(b => b.Id.Equals(id), includes: new[] { "Image", "File" })
+        var book = await this.bookRepository.SelectAsync(b => b.Id.Equals(id),
+            includes: new[] { "Image", "File" })
             ?? throw new NotFoundException("This book is not found");
 
         this.bookRepository.Delete(book);
@@ -75,8 +91,15 @@ public class BookService : IBookService
 
     public async ValueTask<BookResultDto> ModifyAsync(BookUpdateDto dto)
     {
-        var book = await this.bookRepository.SelectAsync(b => b.Id.Equals(dto.Id), includes: new[] { "Image", "File" })
+        var book = await this.bookRepository.SelectAsync(b => b.Id.Equals(dto.Id),
+            includes: new[] { "Image", "File" })
             ?? throw new NotFoundException("This book is not found");
+
+        var user = await this.userRepository.SelectAsync(c => c.Id.Equals(dto.UserId))
+            ?? throw new NotFoundException("user is not found");
+
+        var category = await this.categoryRepository.SelectAsync(c => c.Id.Equals(dto.CategoryId))
+           ?? throw new NotFoundException("Category is not found");
 
         var updloadedImage = new Asset();
         if (dto.Image is not null)
@@ -113,6 +136,7 @@ public class BookService : IBookService
         book.Title = dto.Title;
         book.Description = dto.Description;
         book.CategoryId = dto.CategoryId;
+        book.UserId = dto.UserId;
         book.Author = dto.Author;
 
         this.bookRepository.Update(book);
@@ -138,6 +162,62 @@ public class BookService : IBookService
         var books = await this.bookRepository.SelectAll(q => q.CategoryId.Equals(categoryId),
             includes: new[] { "Image", "File" })
             .ToListAsync();
+
+        return this.mapper.Map<IEnumerable<BookResultDto>>(books);
+    }
+
+    public async ValueTask<bool> AddFavoriteBookAsync(long userId, long bookId)
+    {
+        var user = await userRepository.SelectAsync(u => u.Id.Equals(userId))
+            ?? throw new NotFoundException($"This user not found with {userId}");
+
+        var book = await bookRepository.SelectAsync(b => b.Id.Equals(bookId))
+            ?? throw new NotFoundException($"This book not found with {bookId}");
+
+        var favorite = await this.favoriteRepository.SelectAsync(f => f.UserId.Equals(userId)
+            && f.BookId.Equals(bookId));
+        if (favorite is not null) throw new AlreadyExistException("This favorite already exist");
+
+        var Favorite = new Favorite()
+        {
+            UserId = userId,
+            BookId = bookId,
+        };
+
+        var result = await this.favoriteRepository.InsertAsync(Favorite);
+        await this.favoriteRepository.SaveAsync();
+
+        return true;
+    }
+
+    public async ValueTask<bool> DeleteFavoriteBookAsync(long userId, long bookId)
+    {
+        var user = await userRepository.SelectAsync(u => u.Id.Equals(userId))
+            ?? throw new NotFoundException($"This user not found with {userId}");
+
+        var book = await bookRepository.SelectAsync(b => b.Id.Equals(bookId))
+            ?? throw new NotFoundException($"This book not found with {bookId}");
+
+        var favorite = await this.favoriteRepository.SelectAsync(f => f.UserId.Equals(userId)
+            && f.BookId.Equals(bookId))
+            ?? throw new NotFoundException("This favorite not found");
+
+        this.favoriteRepository.Delete(favorite);
+        await this.favoriteRepository.SaveAsync();
+
+        return true;
+    }
+
+    public async ValueTask<IEnumerable<BookResultDto>> GetAllFavoriteBookAsync(long userId)
+    {
+        var user = await userRepository.SelectAsync(u => u.Id.Equals(userId))
+            ?? throw new NotFoundException($"This user not found with {userId}");
+
+        var favorites = await this.favoriteRepository.SelectAll(f => f.UserId.Equals(userId),
+            includes: new[] { "Book" })
+            .ToListAsync();
+
+        var books = favorites.Select(f => f.Book).ToList();
 
         return this.mapper.Map<IEnumerable<BookResultDto>>(books);
     }

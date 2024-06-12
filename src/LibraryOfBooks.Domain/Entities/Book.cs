@@ -15,4 +15,7 @@ public class Book : Auditable
 
     public long CategoryId { get; set; }
     public BookCategory Category { get; set; }
+
+    public long UserId { get; set; }
+    public User User { get; set; }
 }

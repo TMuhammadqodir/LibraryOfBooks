@@ -11,4 +11,7 @@ public interface IBookService
     ValueTask<BookResultDto> RetrieveByIdAsync(long id);
     ValueTask<IEnumerable<BookResultDto>> RetrieveAllAsync(PaginationParams @params, string search = null);
     ValueTask<IEnumerable<BookResultDto>> RetrieveAllByCategoryIdAsync(long categoryId);
+    ValueTask<bool> AddFavoriteBookAsync(long userId, long bookId);
+    ValueTask<bool> DeleteFavoriteBookAsync(long userId, long bookId);
+    ValueTask<IEnumerable<BookResultDto>> GetAllFavoriteBookAsync(long userId);
 }

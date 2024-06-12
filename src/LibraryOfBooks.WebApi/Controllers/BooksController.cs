@@ -74,4 +74,31 @@ public class BooksController : BaseController
             Message = "Success",
             Data = await this.bookService.RetrieveAllByCategoryIdAsync(categoryId)
         });
+
+    [HttpPost("add-favorite-book")]
+    public async ValueTask<IActionResult> AddFavoriteBookAsync(long userId, long bookId)
+        => Ok(new Response
+        {
+            StatusCode = 200,
+            Message = "Success",
+            Data = await this.bookService.AddFavoriteBookAsync(userId, bookId)
+        });
+
+    [HttpDelete("delete-favorite-book")]
+    public async ValueTask<IActionResult> DeleteFavoriteBookAsync(long userId, long bookId)
+        => Ok(new Response
+        {
+            StatusCode = 200,
+            Message = "Success",
+            Data = await this.bookService.DeleteFavoriteBookAsync(userId, bookId)
+        });
+
+    [HttpGet("get-all-favorite")]
+    public async ValueTask<IActionResult> GetAllFavoriteAsync(long userId)
+        => Ok(new Response
+        {
+            StatusCode = 200,
+            Message = "Success",
+            Data = await this.bookService.GetAllFavoriteBookAsync(userId)
+        });
 }
