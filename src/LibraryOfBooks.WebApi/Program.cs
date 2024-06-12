@@ -1,6 +1,9 @@
 using LibraryOfBooks.Dataccess.Contexts;
+using LibraryOfBooks.Service.Helpers;
 using LibraryOfBooks.WebApi.Extensions;
+using LibraryOfBooks.WebApi.Middlewares;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using System;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,7 +29,17 @@ builder.Services.AddControllersWithViews()
 builder.Services.AddServices();
 
 //JWT token
-builder.Services.AddJwt(builder.Configuration);
+//builder.Services.AddJwt(builder.Configuration);
+
+// Logger
+var logger = new LoggerConfiguration()
+                    .ReadFrom.Configuration(builder.Configuration)
+                    .Enrich.FromLogContext()
+                    .CreateLogger();
+builder.Logging.ClearProviders();
+builder.Logging.AddSerilog(logger);
+
+PathHelper.WebRootPath = Path.GetFullPath("wwwroot");
 
 var app = builder.Build();
 
@@ -36,6 +49,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseAuthentication();
+
+app.UseMiddleware<ExceptionHandlerMiddleware>();
 
 app.UseHttpsRedirection();
 
