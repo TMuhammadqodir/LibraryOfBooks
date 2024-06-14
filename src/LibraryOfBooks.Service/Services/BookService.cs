@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using LibraryOfBooks.Dataccess.IRepositories;
 using LibraryOfBooks.Domain.Configurations;
 using LibraryOfBooks.Domain.Entities;
@@ -8,6 +9,7 @@ using LibraryOfBooks.Service.DTOs.Books;
 using LibraryOfBooks.Service.Exceptions;
 using LibraryOfBooks.Service.Extensions;
 using LibraryOfBooks.Service.Interfaces;
+using LibraryOfBooks.Service.Validators.Books;
 using Microsoft.EntityFrameworkCore;
 
 namespace LibraryOfBooks.Service.Services;
@@ -20,24 +22,36 @@ public class BookService : IBookService
     private readonly IRepository<User> userRepository;
     private readonly IRepository<Favorite> favoriteRepository;
     private readonly IRepository<BookCategory> categoryRepository;
+    private readonly IValidator<BookUpdateDto> bookUpdateDtoValidator;
+    private readonly IValidator<BookCreationDto> bookCreationDtoValidator;
 
     public BookService(IMapper mapper,
+        IAssetService assetService,
         IRepository<Book> bookRepository,
-        IRepository<BookCategory> categoryRepository,
         IRepository<User> userRepository,
         IRepository<Favorite> favoriteRepository,
-        IAssetService assetService)
+        IRepository<BookCategory> categoryRepository,
+        IValidator<BookUpdateDto> bookUpdateDtoValidator,
+        IValidator<BookCreationDto> bookCreationDtoValidator)
     {
         this.mapper = mapper;
         this.assetService = assetService;
+        this.userRepository = userRepository;
         this.bookRepository = bookRepository;
         this.categoryRepository = categoryRepository;
-        this.userRepository = userRepository;
         this.favoriteRepository = favoriteRepository;
+        this.bookUpdateDtoValidator = bookUpdateDtoValidator;
+        this.bookCreationDtoValidator = bookCreationDtoValidator;
     }
 
     public async ValueTask<BookResultDto> AddAsync(BookCreationDto dto)
     {
+        var resultValidator = await this.bookCreationDtoValidator.ValidateAsync(dto);
+
+        if (resultValidator.Errors.Any()) 
+            throw new CustomException(499, resultValidator.Errors.FirstOrDefault().ToString());
+
+
         var category = await this.categoryRepository.SelectAsync(c => c.Id.Equals(dto.CategoryId))
             ?? throw new NotFoundException("Category is not found");
 
@@ -91,6 +105,12 @@ public class BookService : IBookService
 
     public async ValueTask<BookResultDto> ModifyAsync(BookUpdateDto dto)
     {
+
+        var resultValidator = await this.bookUpdateDtoValidator.ValidateAsync(dto);
+
+        if (resultValidator.Errors.Any())
+            throw new CustomException(499, resultValidator.Errors.FirstOrDefault().ToString());
+
         var book = await this.bookRepository.SelectAsync(b => b.Id.Equals(dto.Id),
             includes: new[] { "Image", "File" })
             ?? throw new NotFoundException("This book is not found");

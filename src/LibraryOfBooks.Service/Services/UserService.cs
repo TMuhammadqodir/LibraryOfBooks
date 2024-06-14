@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using LibraryOfBooks.Dataccess.IRepositories;
 using LibraryOfBooks.Domain.Configurations;
 using LibraryOfBooks.Domain.Entities;
@@ -9,6 +10,7 @@ using LibraryOfBooks.Service.Exceptions;
 using LibraryOfBooks.Service.Extensions;
 using LibraryOfBooks.Service.Helpers;
 using LibraryOfBooks.Service.Interfaces;
+using LibraryOfBooks.Service.Validators.Users;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 
@@ -18,15 +20,27 @@ public class UserService : IUserService
 {
     private readonly IMapper mapper;
     private readonly IRepository<User> userRepository;
+    private readonly IValidator<UserUpdateDto> userUpdateDtoValidator;
+    private readonly IValidator<UserCreationDto> userCreationDtoValidator;
 
-    public UserService(IRepository<User> repository, IMapper mapper)
+    public UserService(IMapper mapper,
+        IRepository<User> repository,
+        IValidator<UserUpdateDto> userUpdateDtoValidator,
+        IValidator<UserCreationDto> userCreationDtoValidator)
     {
         this.mapper = mapper;
         this.userRepository = repository;
+        this.userUpdateDtoValidator = userUpdateDtoValidator;
+        this.userCreationDtoValidator = userCreationDtoValidator;
     }
 
     public async ValueTask<UserResultDto> AddAsync(UserCreationDto dto)
     {
+        var resultValidator = await this.userCreationDtoValidator.ValidateAsync(dto);
+
+        if (resultValidator.Errors.Any())
+            throw new CustomException(499, resultValidator.Errors.FirstOrDefault().ToString());
+
         User user = await this.userRepository.SelectAsync(x => x.Phone.Equals(dto.Phone));
         if (user is not null)
             throw new AlreadyExistException($"This phone is already exist");
@@ -42,6 +56,11 @@ public class UserService : IUserService
 
     public async ValueTask<UserResultDto> ModifyAsync(UserUpdateDto dto)
     {
+        var resultValidator = await this.userUpdateDtoValidator.ValidateAsync(dto);
+
+        if (resultValidator.Errors.Any())
+            throw new CustomException(499, resultValidator.Errors.FirstOrDefault().ToString());
+
         User existUser = await this.userRepository.SelectAsync(u => u.Id.Equals(dto.Id))
             ?? throw new NotFoundException($"This user is not found with Id = {dto.Id}");
 
