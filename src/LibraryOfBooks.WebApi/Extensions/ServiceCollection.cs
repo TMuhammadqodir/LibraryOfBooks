@@ -1,9 +1,18 @@
-﻿using LibraryOfBooks.Dataccess.IRepositories;
+﻿using FluentValidation;
+using LibraryOfBooks.Dataccess.IRepositories;
 using LibraryOfBooks.Dataccess.Repositories;
+using LibraryOfBooks.Domain.Entities;
+using LibraryOfBooks.Service.DTOs.BookCategories;
+using LibraryOfBooks.Service.DTOs.Books;
+using LibraryOfBooks.Service.DTOs.Users;
 using LibraryOfBooks.Service.Interfaces;
 using LibraryOfBooks.Service.Mappers;
 using LibraryOfBooks.Service.Services;
+using LibraryOfBooks.Service.Validators.BookCategories;
+using LibraryOfBooks.Service.Validators.Books;
+using LibraryOfBooks.Service.Validators.Users;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -20,6 +29,14 @@ public static class ServiceCollection
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IAssetService, AssetService>();
         services.AddScoped<IBookCategoryService, BookCategoryService>();
+
+        //Validators
+        services.AddScoped<IValidator<BookUpdateDto>, BookUpdateDtoValidator>();
+        services.AddScoped<IValidator<BookCreationDto>, BookCreationDtoValidator>();
+        services.AddScoped<IValidator<UserUpdateDto>, UserUpdateDtoValidator>();
+        services.AddScoped<IValidator<UserCreationDto>, UserCreationDtoValidator>();
+        services.AddScoped<IValidator<BookCategoryUpdateDto>, BookCategoryUpdateDtoValidator>();
+        services.AddScoped<IValidator<BookCategoryCreationDto>, BookCategoryCreationDtoValidator>();
 
         //HttpContexts
         services.AddHttpContextAccessor();

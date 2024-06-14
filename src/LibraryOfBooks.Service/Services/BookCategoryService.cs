@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using LibraryOfBooks.Dataccess.IRepositories;
 using LibraryOfBooks.Domain.Configurations;
 using LibraryOfBooks.Domain.Entities;
@@ -6,6 +7,8 @@ using LibraryOfBooks.Service.DTOs.BookCategories;
 using LibraryOfBooks.Service.Exceptions;
 using LibraryOfBooks.Service.Extensions;
 using LibraryOfBooks.Service.Interfaces;
+using LibraryOfBooks.Service.Validators.BookCategories;
+using Microsoft.AspNetCore.Server.IIS.Core;
 using Microsoft.EntityFrameworkCore;
 
 namespace LibraryOfBooks.Service.Services;
@@ -14,16 +17,27 @@ public class BookCategoryService : IBookCategoryService
 {
     private readonly IMapper mapper;
     private readonly IRepository<BookCategory> bookCategoryRepository;
+    private readonly IValidator<BookCategoryUpdateDto> bookCategoryUpdateDtoValidator;
+    private readonly IValidator<BookCategoryCreationDto> bookCategoryCreationDtoValidator;
 
     public BookCategoryService(
         IMapper mapper,
-        IRepository<BookCategory> bookCategoryRepository
-    ){
+        IRepository<BookCategory> bookCategoryRepository,
+        IValidator<BookCategoryUpdateDto> bookCategoryUpdateDtoValidator,
+        IValidator<BookCategoryCreationDto> bookCategoryCreationDtoValidator)
+    {
         this.mapper = mapper;
         this.bookCategoryRepository = bookCategoryRepository;
+        this.bookCategoryCreationDtoValidator = bookCategoryCreationDtoValidator;
+        this.bookCategoryUpdateDtoValidator = bookCategoryUpdateDtoValidator;
     }
     public async ValueTask<BookCategoryResultDto> AddAsync(BookCategoryCreationDto dto)
     {
+        var resultValidator = await this.bookCategoryCreationDtoValidator.ValidateAsync(dto);
+
+        if (resultValidator.Errors.Any())
+            throw new CustomException(499, resultValidator.Errors.FirstOrDefault().ToString());
+
         var existBookCategory = await this.bookCategoryRepository.SelectAsync(bk => bk.Name.ToLower().Equals(dto.Name.ToLower()));
         if (existBookCategory is not null)
             throw new AlreadyExistException($"This bookCategory already exist with id : {dto.Name}");
@@ -38,6 +52,11 @@ public class BookCategoryService : IBookCategoryService
 
     public async ValueTask<BookCategoryResultDto> ModifyAsync(BookCategoryUpdateDto dto)
     {
+        var resultValidator = await this.bookCategoryUpdateDtoValidator.ValidateAsync(dto);
+
+        if (resultValidator.Errors.Any())
+            throw new CustomException(499, resultValidator.Errors.FirstOrDefault().ToString());
+
         var bookCategory = await this.bookCategoryRepository.SelectAsync(bk => bk.Id.Equals(dto.Id))
             ?? throw new NotFoundException($"This bookCategory is not found with id : {dto.Id}");
 
