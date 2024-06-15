@@ -19,17 +19,11 @@ public class UserCreationDtoValidator : AbstractValidator<UserCreationDto>
             .Length(1, 64)
                 .WithMessage("Last name must be between 1 and 64 characters.");
 
-        RuleFor(x => x.Email)
+        RuleFor(x => x.UserName)
             .NotEmpty()
                 .WithMessage("Email is required.")
-            .EmailAddress()
-                .WithMessage("Email is not valid.");
-
-        RuleFor(x => x.Phone)
-            .NotEmpty()
-                .WithMessage("Phone number is required.")
-            .Matches(@"^\+\d{1,3}\s?\d{4,14}$")
-                .WithMessage("Phone number is not valid.");
+            .Length(1, 64)
+                .WithMessage("Last name must be between 1 and 64 characters.");
 
         RuleFor(x => x.Password)
             .NotEmpty().

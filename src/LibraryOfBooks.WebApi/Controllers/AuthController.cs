@@ -15,13 +15,13 @@ public class AuthController : BaseController
 
     [AllowAnonymous]
     [HttpPost("login")]
-    public async Task<IActionResult> GenerateTokenAsync(string phone, string password)
+    public async Task<IActionResult> GenerateTokenAsync(string userName, string password)
     {
         return Ok(new Response
         {
             StatusCode = 200,
             Message = "Success",
-            Data = await this.authService.GenerateTokenAsync(phone, password)
+            Data = await this.authService.GenerateTokenAsync(userName, password)
         });
     }
 }
