@@ -44,7 +44,7 @@ public class UserService : IUserService
         var user = await this.userRepository.SelectAsync(x => 
             x.UserName.ToLower().Equals(dto.UserName.ToLower()));
         if (user is not null)
-            throw new AlreadyExistException($"This phone is already exist");
+            throw new AlreadyExistException($"This userName is already exist");
 
         var mappedUser = this.mapper.Map<User>(dto);
 
@@ -71,7 +71,7 @@ public class UserService : IUserService
                 x.UserName.ToLower().Equals(dto.UserName.ToLower()));
 
             if(userUserName is not null)
-                throw new AlreadyExistException($"This user already exist with id : {dto.UserName}");
+                throw new AlreadyExistException($"This userName already exist with id : {dto.UserName}");
         }
 
         this.mapper.Map(dto, existUser);
