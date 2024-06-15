@@ -28,9 +28,9 @@ public class AuthService : IAuthService
         this.configuration = configuration;
     }
 
-    public async ValueTask<UserResponseDto> GenerateTokenAsync(string phone, string originalPassword)
+    public async ValueTask<UserResponseDto> GenerateTokenAsync(string userName, string originalPassword)
     {
-        var user = await this.userRepository.SelectAsync(u => u.Phone.Equals(phone))
+        var user = await this.userRepository.SelectAsync(u => u.UserName.Equals(userName))
             ?? throw new NotFoundException("This user is not found");
 
         bool verifiedPassword = PasswordHash.Verify(user.PasswordHash, originalPassword);
@@ -43,7 +43,7 @@ public class AuthService : IAuthService
         {
             Subject = new ClaimsIdentity(new Claim[]
             {
-                 new Claim("Phone", user.Phone),
+                 new Claim("UserName", user.UserName),
                  new Claim("Id", user.Id.ToString()),
                  new Claim(ClaimTypes.Role, user.UserRole.ToString())
             }),

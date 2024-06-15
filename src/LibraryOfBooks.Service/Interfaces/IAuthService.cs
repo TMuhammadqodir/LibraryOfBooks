@@ -4,5 +4,5 @@ namespace LibraryOfBooks.Service.Interfaces;
 
 public interface IAuthService
 {
-    ValueTask<UserResponseDto> GenerateTokenAsync(string phone, string originalPassword);
+    ValueTask<UserResponseDto> GenerateTokenAsync(string userName, string originalPassword);
 }

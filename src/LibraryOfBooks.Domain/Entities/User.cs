@@ -8,8 +8,7 @@ public class User : Auditable
 {
     public string FirstName { get; set; }
     public string LastName { get; set; }
-    public string Email { get; set; }
-    public string Phone { get; set; }
+    public string UserName { get; set; }
     public string PasswordHash { get; set; } = default!;
     public EUserRole UserRole { get; set; } = EUserRole.User;
 

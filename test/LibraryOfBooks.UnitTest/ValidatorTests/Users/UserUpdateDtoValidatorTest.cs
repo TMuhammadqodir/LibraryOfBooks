@@ -21,8 +21,7 @@ namespace LibraryOfBooks.UnitTest.ValidatorTests.Users
                 Id = 1,
                 FirstName = "John",
                 LastName = "Doe",
-                Email = "john.doe@example.com",
-                Phone = "+1234567890",
+                UserName = "johndoeexample",
                 Password = "password123"
             };
 
@@ -39,8 +38,7 @@ namespace LibraryOfBooks.UnitTest.ValidatorTests.Users
                 Id = 0,
                 FirstName = "John",
                 LastName = "Doe",
-                Email = "john.doe@example.com",
-                Phone = "+1234567890",
+                UserName = "johndoeexample",
                 Password = "password123"
             };
 
@@ -57,8 +55,7 @@ namespace LibraryOfBooks.UnitTest.ValidatorTests.Users
                 Id = -1,
                 FirstName = "John",
                 LastName = "Doe",
-                Email = "john.doe@example.com",
-                Phone = "+1234567890",
+                UserName = "johndoeexample",
                 Password = "password123"
             };
 
@@ -75,8 +72,7 @@ namespace LibraryOfBooks.UnitTest.ValidatorTests.Users
                 Id = 1,
                 FirstName = string.Empty,
                 LastName = "Doe",
-                Email = "john.doe@example.com",
-                Phone = "+1234567890",
+                UserName = "johndoeexample",
                 Password = "password123"
             };
 
@@ -93,8 +89,7 @@ namespace LibraryOfBooks.UnitTest.ValidatorTests.Users
                 Id = 1,
                 FirstName = new string('a', 65),
                 LastName = "Doe",
-                Email = "john.doe@example.com",
-                Phone = "+1234567890",
+                UserName = "johndoeexample",
                 Password = "password123"
             };
 
@@ -111,8 +106,7 @@ namespace LibraryOfBooks.UnitTest.ValidatorTests.Users
                 Id = 1,
                 FirstName = "John",
                 LastName = string.Empty,
-                Email = "john.doe@example.com",
-                Phone = "+1234567890",
+                UserName = "johndoeexample",
                 Password = "password123"
             };
 
@@ -129,8 +123,7 @@ namespace LibraryOfBooks.UnitTest.ValidatorTests.Users
                 Id = 1,
                 FirstName = "John",
                 LastName = new string('a', 65),
-                Email = "john.doe@example.com",
-                Phone = "+1234567890",
+                UserName = "johndoeexample",
                 Password = "password123"
             };
 
@@ -147,8 +140,7 @@ namespace LibraryOfBooks.UnitTest.ValidatorTests.Users
                 Id = 1,
                 FirstName = "John",
                 LastName = "Doe",
-                Email = string.Empty,
-                Phone = "+1234567890",
+                UserName = new string('a', 70),
                 Password = "password123"
             };
 
@@ -165,44 +157,7 @@ namespace LibraryOfBooks.UnitTest.ValidatorTests.Users
                 Id = 1,
                 FirstName = "John",
                 LastName = "Doe",
-                Email = "invalid-email",
-                Phone = "+1234567890",
-                Password = "password123"
-            };
-
-            var result = this.validator.TestValidate(model);
-
-            Assert.False(result.IsValid);
-        }
-
-        [Fact]
-        public void Should_Have_Error_When_Phone_Is_Empty()
-        {
-            var model = new UserUpdateDto
-            {
-                Id = 1,
-                FirstName = "John",
-                LastName = "Doe",
-                Email = "john.doe@example.com",
-                Phone = string.Empty,
-                Password = "password123"
-            };
-
-            var result = this.validator.TestValidate(model);
-
-            Assert.False(result.IsValid);
-        }
-
-        [Fact]
-        public void Should_Have_Error_When_Phone_Is_Invalid_Format()
-        {
-            var model = new UserUpdateDto
-            {
-                Id = 1,
-                FirstName = "John",
-                LastName = "Doe",
-                Email = "john.doe@example.com",
-                Phone = "12345",
+                UserName = "",
                 Password = "password123"
             };
 
@@ -219,8 +174,7 @@ namespace LibraryOfBooks.UnitTest.ValidatorTests.Users
                 Id = 1,
                 FirstName = "John",
                 LastName = "Doe",
-                Email = "john.doe@example.com",
-                Phone = "+1234567890",
+                UserName = "johndoeexample",
                 Password = string.Empty
             };
 
@@ -237,8 +191,7 @@ namespace LibraryOfBooks.UnitTest.ValidatorTests.Users
                 Id = 1,
                 FirstName = "John",
                 LastName = "Doe",
-                Email = "john.doe@example.com",
-                Phone = "+1234567890",
+                UserName = "johndoeexample",
                 Password = "12345"
             };
 
