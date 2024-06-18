@@ -1,0 +1,95 @@
+﻿@page "/bookcategories"
+
+@using LibraryOfBooks.Web.DTOs.BookCategories
+@inject LibraryOfBooks.Web.Services.BookCategoryService BookCategoryService
+
+<h3>Book Categories</h3>
+
+<button @onclick="ShowCreateForm">Create New Category</button>
+
+@if (bookCategories is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <ul>
+        @foreach (var category in bookCategories)
+        {
+            <li>
+                @category.Name
+                <button @onclick="() => ShowUpdateForm(category)">Edit</button>
+                <button @onclick="() => DeleteCategory(category.Id)">Delete</button>
+            </li>
+        }
+    </ul>
+}
+
+@if (showCreateForm)
+{
+    <div>
+        <h4>Create New Category</h4>
+        <input @bind="newCategory.Name" placeholder="Category Name" />
+        <button @onclick="CreateCategory">Create</button>
+        <button @onclick="() => showCreateForm = false">Cancel</button>
+    </div>
+}
+
+@if (showUpdateForm)
+{
+    <div>
+        <h4>Update Category</h4>
+        <input @bind="updateCategory.Name" placeholder="Category Name" />
+        <button @onclick="UpdateCategory">Update</button>
+        <button @onclick="() => showUpdateForm = false">Cancel</button>
+    </div>
+}
+
+@code {
+    private IEnumerable<BookCategoryResultDto> bookCategories;
+    private BookCategoryCreationDto newCategory = new BookCategoryCreationDto();
+    private BookCategoryUpdateDto updateCategory = new BookCategoryUpdateDto();
+    private bool showCreateForm = false;
+    private bool showUpdateForm = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        bookCategories = (await BookCategoryService.GetAllBookCategoriesAsync()).ToList();
+    }
+
+    private void ShowCreateForm()
+    {
+        showCreateForm = true;
+        showUpdateForm = false;
+    }
+
+    private void ShowUpdateForm(BookCategoryResultDto category)
+    {
+        updateCategory.Id = category.Id;
+        updateCategory.Name = category.Name;
+        showCreateForm = false;
+        showUpdateForm = true;
+    }
+
+    private async Task CreateCategory()
+    {
+        await BookCategoryService.CreateBookCategoryAsync(newCategory);
+        bookCategories = await BookCategoryService.GetAllBookCategoriesAsync();
+        showCreateForm = false;
+        newCategory = new BookCategoryCreationDto();
+    }
+
+    private async Task UpdateCategory()
+    {
+        await BookCategoryService.UpdateBookCategoryAsync(updateCategory);
+        bookCategories = await BookCategoryService.GetAllBookCategoriesAsync();
+        showUpdateForm = false;
+        updateCategory = new BookCategoryUpdateDto();
+    }
+
+    private async Task DeleteCategory(long id)
+    {
+        await BookCategoryService.DeleteBookCategoryAsync(id);
+        bookCategories = await BookCategoryService.GetAllBookCategoriesAsync();
+    }
+}
