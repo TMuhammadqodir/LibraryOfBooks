@@ -30,7 +30,7 @@ public class AuthService : IAuthService
 
     public async ValueTask<UserResponseDto> GenerateTokenAsync(string userName, string originalPassword)
     {
-        var user = await this.userRepository.SelectAsync(u => u.UserName.Equals(userName))
+        var user = await this.userRepository.SelectAsync(u => u.UserName.ToLower().Equals(userName.ToLower()))
             ?? throw new NotFoundException("This user is not found");
 
         bool verifiedPassword = PasswordHash.Verify(user.PasswordHash, originalPassword);

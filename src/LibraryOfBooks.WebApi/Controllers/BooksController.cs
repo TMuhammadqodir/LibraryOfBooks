@@ -55,13 +55,12 @@ public class BooksController : BaseController
     [AllowAnonymous]
     [HttpGet("get-all")]
     public async ValueTask<IActionResult> GetAllAsync(
-        [FromQuery] PaginationParams @params,
-        string search)
+        [FromQuery] PaginationParams @params)
         => Ok(new Response
         {
             StatusCode = 200,
             Message = "Success",
-            Data = await this.bookService.RetrieveAllAsync(@params, search)
+            Data = await this.bookService.RetrieveAllAsync(@params)
         });
 
 

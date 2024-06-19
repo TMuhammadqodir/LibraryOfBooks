@@ -5,29 +5,26 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{D3AD0567-F119-4FB6-A54F-73DF14C066EC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibraryOfBooks.Dataccess", "src\LibraryOfBooks.DataAccess\LibraryOfBooks.Dataccess.csproj", "{C153A414-7B85-4A34-A8AE-70DEED504168}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibraryOfBooks.Dataccess", "src\LibraryOfBooks.DataAccess\LibraryOfBooks.Dataccess.csproj", "{C153A414-7B85-4A34-A8AE-70DEED504168}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibraryOfBooks.Domain", "src\LibraryOfBooks.Domain\LibraryOfBooks.Domain.csproj", "{41F492F9-E065-4D89-B809-EDCD704BB2BE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibraryOfBooks.Domain", "src\LibraryOfBooks.Domain\LibraryOfBooks.Domain.csproj", "{41F492F9-E065-4D89-B809-EDCD704BB2BE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibraryOfBooks.Service", "src\LibraryOfBooks.Service\LibraryOfBooks.Service.csproj", "{C7B11AB6-C0C9-41CF-83FF-E4A6332A33F4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibraryOfBooks.Service", "src\LibraryOfBooks.Service\LibraryOfBooks.Service.csproj", "{C7B11AB6-C0C9-41CF-83FF-E4A6332A33F4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibraryOfBooks.WebApi", "src\LibraryOfBooks.WebApi\LibraryOfBooks.WebApi.csproj", "{FD415220-653F-4905-86F9-443EB73932D4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibraryOfBooks.WebApi", "src\LibraryOfBooks.WebApi\LibraryOfBooks.WebApi.csproj", "{FD415220-653F-4905-86F9-443EB73932D4}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "web", "web", "{B899287B-AD1F-4AD7-BF51-B7FBF7CF2ED9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibraryOfBooks.Web", "web\LibraryOfBooks.Web\LibraryOfBooks.Web.csproj", "{BCFF6645-D8B1-4A85-921F-B7DE8F6D9F62}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibraryOfBooks.Web", "web\LibraryOfBooks.Web\LibraryOfBooks.Web.csproj", "{BCFF6645-D8B1-4A85-921F-B7DE8F6D9F62}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{4C96CEDB-33A3-49B3-8AF5-17ED3F676F70}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibraryOfBooks.UnitTest", "test\LibraryOfBooks.UnitTest\LibraryOfBooks.UnitTest.csproj", "{CDBBFEC0-857E-4AF8-B5F2-D44B79FB7EDB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibraryOfBooks.UnitTest", "test\LibraryOfBooks.UnitTest\LibraryOfBooks.UnitTest.csproj", "{CDBBFEC0-857E-4AF8-B5F2-D44B79FB7EDB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{C153A414-7B85-4A34-A8AE-70DEED504168}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -55,6 +52,9 @@ Global
 		{CDBBFEC0-857E-4AF8-B5F2-D44B79FB7EDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CDBBFEC0-857E-4AF8-B5F2-D44B79FB7EDB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{C153A414-7B85-4A34-A8AE-70DEED504168} = {D3AD0567-F119-4FB6-A54F-73DF14C066EC}
 		{41F492F9-E065-4D89-B809-EDCD704BB2BE} = {D3AD0567-F119-4FB6-A54F-73DF14C066EC}
@@ -62,5 +62,8 @@ Global
 		{FD415220-653F-4905-86F9-443EB73932D4} = {D3AD0567-F119-4FB6-A54F-73DF14C066EC}
 		{BCFF6645-D8B1-4A85-921F-B7DE8F6D9F62} = {B899287B-AD1F-4AD7-BF51-B7FBF7CF2ED9}
 		{CDBBFEC0-857E-4AF8-B5F2-D44B79FB7EDB} = {4C96CEDB-33A3-49B3-8AF5-17ED3F676F70}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C63069F1-E27E-40D1-8E27-1259A087A508}
 	EndGlobalSection
 EndGlobal

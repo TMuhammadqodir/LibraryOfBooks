@@ -27,7 +27,7 @@ public class UserUpdateDtoValidator : AbstractValidator<UserUpdateDto>
             .NotEmpty()
                 .WithMessage("Email is required.")
             .Length(1, 64)
-                .WithMessage("Last name must be between 1 and 64 characters.");
+                .WithMessage("Last userName must be between 1 and 64 characters.");
 
         RuleFor(x => x.Password)
             .NotEmpty()

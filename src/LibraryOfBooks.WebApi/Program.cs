@@ -5,15 +5,39 @@ using LibraryOfBooks.WebApi.Middlewares;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using System;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(builder =>
+    {
+        builder.WithOrigins("https://localhost:7053") 
+               .AllowAnyHeader()
+               .AllowAnyMethod();
+    });
+});
 
 // Add services to the container.
 
 builder.Services.AddControllers();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins",
+        builder =>
+        {
+            builder.WithOrigins("https://localhost:7053")
+                   .AllowAnyHeader()
+                   .AllowAnyMethod();
+        });
+});
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+//builder.Services.ConfigureSwagger();
 
 //Add DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -53,6 +77,8 @@ if (app.Environment.IsDevelopment())
 app.UseAuthentication();
 
 app.UseMiddleware<ExceptionHandlerMiddleware>();
+
+app.UseCors("AllowAllOrigins");
 
 app.UseHttpsRedirection();
 

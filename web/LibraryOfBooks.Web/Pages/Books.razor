@@ -1,0 +1,112 @@
+﻿@page "/books"
+
+@using LibraryOfBooks.Web.DTOs.Books
+@using LibraryOfBooks.Web.Extentions
+@inject LibraryOfBooks.Web.Services.BookService BookService
+
+<h3>Books</h3>
+
+<button @onclick="LoadBooks">Load Books</button>
+<button @onclick="ShowCreateForm">Add New Book</button>
+
+@if (showCreateForm)
+{
+    <EditForm Model="newBook" OnValidSubmit="CreateBook">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div>
+            <label>Title:</label>
+            <InputText @bind-Value="newBook.Title" />
+        </div>
+        <div>
+            <label>Author:</label>
+            <InputText @bind-Value="newBook.Author" />
+        </div>
+        <div>
+            <label>Description:</label>
+            <InputTextArea @bind-Value="newBook.Description" />
+        </div>
+        <div>
+            <label>Category ID:</label>
+            <InputNumber @bind-Value="newBook.CategoryId" />
+        </div>
+        <div>
+            <label>User ID:</label>
+            <InputNumber @bind-Value="newBook.UserId" />
+        </div>
+        <div>
+            <label>File:</label>
+            <InputFile OnChange="HandleFileChange" />
+        </div>
+        <div>
+            <label>Image:</label>
+            <InputFile OnChange="HandleImageChange" />
+        </div>
+        <button type="submit">Create</button>
+    </EditForm>
+}
+
+@if (books != null)
+{
+    <ul>
+        @foreach (var book in books)
+        {
+            <li>
+                @book.Title - @book.Author
+                <button @onclick="() => ShowUpdateForm(book.Id)">Edit</button>
+                <button @onclick="() => DeleteBook(book.Id)">Delete</button>
+            </li>
+        }
+    </ul>
+}
+
+@code {
+    private List<BookResultDto> books;
+    private BookCreationDto newBook = new BookCreationDto();
+    private bool showCreateForm = false;
+
+    private async Task LoadBooks()
+    {
+        var response = await BookService.GetAllBooksAsync();
+        books = response.Data.ToList();
+    }
+
+    private void ShowCreateForm()
+    {
+        showCreateForm = true;
+    }
+
+    private async Task CreateBook()
+    {
+        var response = await BookService.CreateBookAsync(newBook);
+        if (response.StatusCode == 200)
+        {
+            showCreateForm = false;
+            await LoadBooks();
+        }
+    }
+
+    private async void HandleFileChange(InputFileChangeEventArgs e)
+    {
+        newBook.File = await FileConverter.ToIFormFileAsync(e.File);
+    }
+
+    private async void HandleImageChange(InputFileChangeEventArgs e)
+    {
+        newBook.Image = await FileConverter.ToIFormFileAsync(e.File);
+    }
+
+    private async Task DeleteBook(long id)
+    {
+        var response = await BookService.DeleteBookAsync(id);
+        if (response.StatusCode == 200)
+        {
+            await LoadBooks();
+        }
+    }
+
+    private void ShowUpdateForm(long id)
+    {
+        // Logic to show update form and populate with book data
+    }
+}
