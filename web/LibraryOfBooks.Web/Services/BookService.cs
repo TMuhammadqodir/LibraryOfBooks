@@ -16,6 +16,7 @@ public class BookService
     public async Task<Response<BookResultDto>> CreateBookAsync(BookCreationDto book)
     {
         var response = await _httpClient.PostAsJsonAsync("api/books/create", book);
+
         return await response.Content.ReadFromJsonAsync<Response<BookResultDto>>();
     }
 

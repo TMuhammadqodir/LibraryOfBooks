@@ -1,0 +1,39 @@
+﻿<!-- File: Login.razor -->
+@page "/login"
+
+@using LibraryOfBooks.Web.DTOs.Responses
+@using LibraryOfBooks.Web.Interfaces
+@inject IAuthService AuthService
+
+<h3>Login</h3>
+
+<div>
+    <label for="userName">Username:</label>
+    <input id="userName" @bind="@UserName" />
+</div>
+<div>
+    <label for="password">Password:</label>
+    <input id="password" type="password" @bind="@Password" />
+</div>
+<div>
+    <button @onclick="Loginn">Login</button>
+</div>
+
+@code {
+    private string UserName { get; set; }
+    private string Password { get; set; }
+
+    private async Task Loginn()
+    {
+        var userResponse = await AuthService.GenerateTokenAsync(UserName, Password);
+
+        if (userResponse.StatusCode == 200)
+        {
+            Console.WriteLine("Token: " + userResponse.Data.Token);
+        }
+        else
+        {
+            Console.WriteLine("Login error: " + userResponse.Message);
+        }
+    }
+}
