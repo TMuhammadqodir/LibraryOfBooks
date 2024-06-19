@@ -1,0 +1,52 @@
+﻿@page "/create-user"
+@using LibraryOfBooks.Web.DTOs.Users
+@using LibraryOfBooks.Web.Interfaces
+@inject IUserService UserService
+
+<h3>Create User</h3>
+
+<div>
+    <label for="createFirstName">First Name:</label>
+    <input id="createFirstName" @bind="NewUser.FirstName" />
+</div>
+<div>
+    <label for="createLastName">Last Name:</label>
+    <input id="createLastName" @bind="NewUser.LastName" />
+</div>
+<div>
+    <label for="createUserName">User Name:</label>
+    <input id="createUserName" @bind="NewUser.UserName" />
+</div>
+<div>
+    <label for="createPassword">Password:</label>
+    <input id="createPassword" type="password" @bind="NewUser.Password" />
+</div>
+<div>
+    <button @onclick="CreateUsers">Create User</button>
+</div>
+
+
+<div>
+    @if (!string.IsNullOrEmpty(Message))
+    {
+        <p>@Message</p>
+    }
+</div>
+
+@code {
+    private UserCreationDto NewUser { get; set; } = new UserCreationDto();
+    private string Message { get; set; }
+
+    private async Task CreateUsers()
+    {
+        var response = await UserService.CreateUserAsync(NewUser);
+        if (response.StatusCode == 200)
+        {
+            Message = "User created successfully.";
+        }
+        else
+        {
+            Message = "Error: " + response.Message;
+        }
+    }
+}

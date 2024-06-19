@@ -1,0 +1,39 @@
+﻿@page "/delete-user"
+@using LibraryOfBooks.Web.Interfaces
+@inject IUserService UserService
+
+<h3>Delete User</h3>
+
+<div>
+    <label for="id">User ID:</label>
+    <input id="id" @bind="UserId" />
+</div>
+<div>
+    <button @onclick="DeleteUsers">Delete User</button>
+</div>
+
+<div>
+    @if (!string.IsNullOrEmpty(Message))
+    {
+        <p>@Message</p>
+    }
+</div>
+
+@code {
+    private long UserId { get; set; }
+    private string Message { get; set; }
+
+    private async Task DeleteUsers()
+    {
+        var response = await UserService.DeleteUserAsync(UserId);
+
+        if (response.StatusCode == 200)
+        {
+            Message = "User deleted successfully.";
+        }
+        else
+        {
+            Message = "Error: " + response.Message;
+        }
+    }
+}

@@ -18,12 +18,7 @@ public class AuthService : IAuthService
 
     public async Task<Response<UserResponseDto>> GenerateTokenAsync(string userName, string password)
     {
-        var response = await httpClient.PostAsJsonAsync("api/auth/login", new { UserName = userName, Password = password });
-
-        if (!response.IsSuccessStatusCode)
-        {
-            throw new Exception("Failed to generate token: " + response.ReasonPhrase);
-        }
+        var response = await httpClient.PostAsJsonAsync("api/auth/login", new { userName = userName, password = password });
 
         var userResponse = await response.Content.ReadFromJsonAsync<Response<UserResponseDto>>();
 

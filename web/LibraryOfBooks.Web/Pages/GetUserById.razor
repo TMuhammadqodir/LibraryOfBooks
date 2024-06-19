@@ -1,0 +1,49 @@
+﻿@page "/get-user-by-id"
+@using LibraryOfBooks.Web.DTOs.Users
+@using LibraryOfBooks.Web.Interfaces
+@inject IUserService UserService
+
+<h3>Get User By ID</h3>
+
+<div>
+    <label for="id">User ID:</label>
+    <input id="id" @bind="UserId" />
+</div>
+<div>
+    <button @onclick="GetUser">Get User</button>
+</div>
+
+<div>
+    @if (User != null)
+    {
+        <p>ID: @User.Id</p>
+        <p>First Name: @User.FirstName</p>
+        <p>Last Name: @User.LastName</p>
+        <p>User Name: @User.UserName</p>
+        <p>Role: @User.UserRole</p>
+    }
+    else if (!string.IsNullOrEmpty(Message))
+    {
+        <p>@Message</p>
+    }
+</div>
+
+@code {
+    private long UserId { get; set; }
+    private UserResponseDto User { get; set; }
+    private string Message { get; set; }
+
+    private async Task GetUser()
+    {
+        var response = await UserService.GetUserByIdAsync(UserId);
+
+        if (response.StatusCode == 200)
+        {
+            User = response.Data;
+        }
+        else
+        {
+            Message = "Error: " + response.Message;
+        }
+    }
+}
