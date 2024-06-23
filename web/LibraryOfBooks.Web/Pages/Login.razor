@@ -1,39 +1,95 @@
-﻿<!-- File: Login.razor -->
-@page "/login"
+﻿@page "/login"
 
+@using System.ComponentModel.DataAnnotations
 @using LibraryOfBooks.Web.DTOs.Responses
 @using LibraryOfBooks.Web.Interfaces
 @inject IAuthService AuthService
+@inject NavigationManager NavigationManager
 
-<h3>Login</h3>
+<style>
+    .login-container {
+        max-width: 400px;
+        margin: auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
+        margin-top: 50px;
+        background-color: #f9f9f9;
+    }
 
-<div>
-    <label for="userName">Username:</label>
-    <input id="userName" @bind="@UserName" />
-</div>
-<div>
-    <label for="password">Password:</label>
-    <input id="password" type="password" @bind="@Password" />
-</div>
-<div>
-    <button @onclick="Loginn">Login</button>
+        .login-container h3 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+    .btn-login {
+        width: 100%;
+        background-color: #007bff;
+        color: white;
+    }
+</style>
+
+<div class="login-container">
+    <h3>Login</h3>
+
+    <EditForm Model="loginModel" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label for="userName" class="form-label">Username</label>
+            <InputText class="form-control" id="userName" @bind-Value="loginModel.UserName" placeholder="Enter username" />
+            <ValidationMessage For="@(() => loginModel.UserName)" />
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <InputText type="password" class="form-control" id="password" @bind-Value="loginModel.Password" placeholder="Enter password" />
+            <ValidationMessage For="@(() => loginModel.Password)" />
+        </div>
+        <div class="mb-3">
+            <button type="submit" class="btn btn-login">Login</button>
+        </div>
+        <div class="mb-3 text-center">
+            <label class="form-label">New here? 
+                <a href="/create-user">Create an account</a>
+            </label>
+        </div>
+    </EditForm>
+
+    <div class="text-center">
+        <small class="text-danger">@errorMessage</small>
+    </div>
 </div>
 
 @code {
-    private string UserName { get; set; }
-    private string Password { get; set; }
+    private LoginModel loginModel = new LoginModel();
+    private string errorMessage;
 
-    private async Task Loginn()
+    private async Task HandleValidSubmit()
     {
-        var userResponse = await AuthService.GenerateTokenAsync(UserName, Password);
+        var userResponse = await AuthService.GenerateTokenAsync(loginModel.UserName, loginModel.Password);
 
         if (userResponse.StatusCode == 200)
         {
             Console.WriteLine("Token: " + userResponse.Data.Token);
+            NavigationManager.NavigateTo("/home");
         }
         else
         {
-            Console.WriteLine("Login error: " + userResponse.Message);
+            errorMessage = "Login error: " + userResponse.Message;
+            Console.WriteLine(errorMessage);
         }
+    }
+
+    public class LoginModel
+    {
+        [Required(ErrorMessage = "Username is required")]
+        [StringLength(64, MinimumLength = 1, ErrorMessage = "Username must be between 1 and 64 characters")]
+        public string UserName { get; set; }
+
+        [Required(ErrorMessage = "Password is required")]
+        [StringLength(int.MaxValue, MinimumLength = 8, ErrorMessage = "Password must be at least 8 characters long")]
+        public string Password { get; set; }
     }
 }

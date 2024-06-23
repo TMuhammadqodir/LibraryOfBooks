@@ -1,0 +1,205 @@
+﻿@page "/favorite-books"
+@using LibraryOfBooks.Web.DTOs.BookCategories
+@using LibraryOfBooks.Web.DTOs.Books
+@using LibraryOfBooks.Web.DTOs.Assets
+@using LibraryOfBooks.Web.Extentions
+@using LibraryOfBooks.Web.Services
+@inject BookService BookService
+@inject BookCategoryService CategoryService
+
+<div class="container">
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        @if (books != null && books.Count > 0)
+        {
+            @foreach (var book in books)
+            {
+                <div class="col">
+                    <div class="card h-100 book-card shadow-lg">
+                        <div @onclick="() => ShowBookDetails(book)" class="cursor-pointer">
+                            @if (book.Image != null && !string.IsNullOrEmpty(book.Image.FilePath))
+                            {
+                                <img src="@book.Image.FilePath" class="card-img-top book-image rounded-top" alt="@book.Title" style="object-fit: cover; height: 150px;">
+                            }
+                            else
+                            {
+                                <div class="card-img-top book-image rounded-top" style="height: 150px; background-color: #f5f5f5; display: flex; justify-content: center; align-items: center;">
+                                    <i class="fas fa-book fa-3x text-secondary"></i>
+                                </div>
+                            }
+                            <div class="card-body">
+                                <h5 class="card-title">@book.Title</h5>
+                                <p class="card-text">Author: @book.Author</p>
+                            </div>
+                        </div>
+                        <div class="card-footer text-end">
+                            <button class="btn btn-danger btn-sm" @onclick="() => RemoveFavorite(book.Id)">Remove Favorite</button>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12 text-center">
+                <p class="text-muted">No books found.</p>
+            </div>
+        }
+    </div>
+
+    @if (showBookDetails && selectedBook != null)
+    {
+        <div class="modal fade show" tabindex="-1" style="display: block; background: rgba(0, 0, 0, 0.5);">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">@selectedBook.Title</h5>
+                        <button type="button" class="close" @onclick="CloseBookDetails">
+                            <span>&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <img src="@selectedBook.Image.FilePath" class="img-fluid rounded shadow-lg" alt="@selectedBook.Title" style="max-width: 100%; height: 250px; object-fit: cover;">
+                            </div>
+                            <div class="col-md-8">
+                                <h6>Book Details</h6>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">
+                                        <strong>Category ID:</strong> @categoryName
+                                    </li>
+                                    <li class="list-group-item">
+                                        <strong>Title:</strong> @selectedBook.Title
+                                    </li>
+                                    <li class="list-group-item">
+                                        <strong>Author:</strong> @selectedBook.Author
+                                    </li>
+                                    <li class="list-group-item">
+                                        <strong>Description:</strong> @selectedBook.Description
+                                    </li>
+                                </ul>
+                                <div class="d-grid gap-2 mt-3">
+                                    <a href="@selectedBook.File.FilePath" class="btn btn-primary btn-lg" download="@selectedBook.File.FileName">
+                                        <i class="fas fa-download"></i> Download File
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .book-card {
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+        .book-card:hover {
+            transform: scale(1.05);
+        }
+
+    .book-image {
+        height: 200px;
+        object-fit: cover;
+        border-radius: 10px 10px 0 0;
+    }
+
+    .modal-content {
+        background-color: #fff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-header {
+        border-bottom: 1px solid #dee2e6;
+        padding: 1rem 1.5rem;
+        position: relative;
+        background-color: #f8f9fa;
+        border-radius: 10px 10px 0 0;
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+    }
+
+    .close {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        color: red;
+        font-size: 1.5rem;
+        cursor: pointer;
+    }
+
+        .close:hover {
+            color: darkred;
+        }
+
+    .img-fluid {
+        max-width: 100%;
+        height: auto;
+    }
+
+    .rounded {
+        border-radius: 10px;
+    }
+</style>
+
+@code {
+    private List<BookResultDto> books;
+    private bool showBookDetails = false;
+    private BookResultDto selectedBook;
+    private List<BookCategoryResultDto> bookCategories;
+    private string categoryName;
+    private long userId = 3; 
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadFavoriteBooks();
+        await LoadBookCategories();
+    }
+
+    private async Task LoadFavoriteBooks()
+    {
+        var response = await BookService.GetAllFavoriteBooksAsync(3);
+        books = response.Data.ToList();
+    }
+
+    private async Task LoadBookCategories()
+    {
+        var response = await CategoryService.GetAllBookCategoriesAsync();
+        bookCategories = response.ToList();
+    }
+
+    private void ShowBookDetails(BookResultDto book)
+    {
+        selectedBook = book;
+        GetCategoryName(selectedBook.CategoryId);
+        showBookDetails = true;
+    }
+
+    private void GetCategoryName(long categoryId)
+    {
+        var category = bookCategories.FirstOrDefault(bc => bc.Id.Equals(categoryId));
+        categoryName = category?.Name ?? "Unknown Category";
+    }
+
+    private async Task RemoveFavorite(long bookId)
+    {
+        var response = await BookService.DeleteFavoriteBookAsync(userId, bookId);
+        if (response.Data)
+        {
+            books.Remove(books.First(b => b.Id == bookId));
+        }
+    }
+
+    private void CloseBookDetails()
+    {
+        showBookDetails = false;
+    }
+}

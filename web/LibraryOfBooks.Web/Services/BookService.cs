@@ -44,6 +44,12 @@ public class BookService
         return response;
     }
 
+    public async Task<Response<IEnumerable<BookResultDto>>> GetByUserIdBooksAsync(long userId)
+    {
+        var response = await _httpClient.GetFromJsonAsync<Response<IEnumerable<BookResultDto>>>($"api/books/get-by-user-id/{userId}");
+        return response;
+    }
+
     public async Task<Response<IEnumerable<BookResultDto>>> GetBooksByCategoryIdAsync(long categoryId)
     {
         var response = await _httpClient.GetFromJsonAsync<Response<IEnumerable<BookResultDto>>>($"api/books/get-by-categoryId/{categoryId}");

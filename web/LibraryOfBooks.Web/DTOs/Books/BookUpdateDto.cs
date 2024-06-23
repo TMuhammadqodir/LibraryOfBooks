@@ -10,6 +10,6 @@ public class BookUpdateDto
 	public string Description { get; set; }
 	public long CategoryId { get; set; }
 	public long UserId { get; set; }
-    public IFormFile File { get; set; }
-	public IFormFile Image { get; set; }
+    public IFormFile? File { get; set; }
+	public IFormFile? Image { get; set; }
 }

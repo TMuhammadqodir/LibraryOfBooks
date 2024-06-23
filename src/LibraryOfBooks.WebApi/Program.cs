@@ -74,13 +74,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseAuthentication();
-
 app.UseMiddleware<ExceptionHandlerMiddleware>();
+
+app.UseStaticFiles();
 
 app.UseCors("AllowAllOrigins");
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

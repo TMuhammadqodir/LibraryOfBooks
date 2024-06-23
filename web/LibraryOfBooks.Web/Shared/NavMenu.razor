@@ -1,8 +1,7 @@
 ﻿<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">LibraryOfBooks.Web</a>
+        <a class="navbar-brand" href=""><i class="bi bi-columns-gap"></i>&nbsp; Library Of Books</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
         </button>
     </div>
 </div>
@@ -10,53 +9,18 @@
 <div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
     <nav class="flex-column">
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Home
+            <NavLink class="nav-link" href="books" Match="NavLinkMatch.All">
+                <i class="bi bi-book-half"></i>&nbsp; Books
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="books">
-                <span class="oi oi-plus" aria-hidden="true"></span> Books
+            <NavLink class="nav-link" href="my-books">
+                <i class="bi bi-book"></i>&nbsp; My Books
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="bookcategories">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> BookCategory
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="login">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> Login
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="create-user">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> create user
-            </NavLink>                                     
-        </div>                                             
-        <div class="nav-item px-3">                        
-            <NavLink class="nav-link" href="update-user">  
-                <span class="oi oi-list-rich" aria-hidden="true"></span> update user
-            </NavLink>                                     
-        </div>                                             
-        <div class="nav-item px-3">                        
-            <NavLink class="nav-link" href="delete-user">  
-                <span class="oi oi-list-rich" aria-hidden="true"></span> delete user
-            </NavLink>                                     
-        </div>                                             
-        <div class="nav-item px-3">                        
-            <NavLink class="nav-link" href="get-user-by-id">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> get by id user
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="get-all-users">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> get all user
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="upgrade-role">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> upgrade user role
+            <NavLink class="nav-link" href="favorite-books">
+                <i class="bi bi-bookmark-check"></i>&nbsp; Favorites
             </NavLink>
         </div>
     </nav>

@@ -9,6 +9,7 @@ public interface IBookService
     ValueTask<BookResultDto> ModifyAsync(BookUpdateDto dto);
     ValueTask<bool> DeleteAsync(long id);
     ValueTask<BookResultDto> RetrieveByIdAsync(long id);
+    ValueTask<IEnumerable<BookResultDto>> RetrieveByUserIdAsync(PaginationParams @params, long userId);
     ValueTask<IEnumerable<BookResultDto>> RetrieveAllAsync(PaginationParams @params, string search = null);
     ValueTask<IEnumerable<BookResultDto>> RetrieveAllByCategoryIdAsync(long categoryId);
     ValueTask<bool> AddFavoriteBookAsync(long userId, long bookId);
