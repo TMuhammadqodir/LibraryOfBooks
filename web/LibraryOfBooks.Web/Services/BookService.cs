@@ -1,5 +1,7 @@
 ﻿using LibraryOfBooks.Web.DTOs.Books;
 using LibraryOfBooks.Web.DTOs.Responses;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
 namespace LibraryOfBooks.Web.Services;
@@ -15,7 +17,34 @@ public class BookService
 
     public async Task<Response<BookResultDto>> CreateBookAsync(BookCreationDto book)
     {
-        var response = await _httpClient.PostAsJsonAsync("api/books/create", book);
+        var content = new MultipartFormDataContent();
+
+        content.Add(new StringContent(book.Title), "Title");
+        content.Add(new StringContent(book.Author), "Author");
+        content.Add(new StringContent(book.Description), "Description");
+        content.Add(new StringContent(book.CategoryId.ToString()), "CategoryId");
+        content.Add(new StringContent(book.UserId.ToString()), "UserId");
+        if (book.File != null)
+        {
+            var fileContent = new StreamContent(book.File.OpenReadStream(book.File.Size));
+            fileContent.Headers.ContentType = new MediaTypeHeaderValue(book.File.ContentType); // content type added
+            content.Add(fileContent, "File", book.File.Name);
+        }
+
+        if (book.Image != null)
+        {
+            var imageContent = new StreamContent(book.Image.OpenReadStream(book.Image.Size));
+            imageContent.Headers.ContentType = new MediaTypeHeaderValue(book.Image.ContentType); // content type added
+            content.Add(imageContent, "Image", book.Image.Name);
+        }
+
+        var response = await _httpClient.PostAsync("api/books/create", content);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorContent = await response.Content.ReadAsStringAsync();
+            throw new ApplicationException($"Error creating book: {errorContent}");
+        }
 
         return await response.Content.ReadFromJsonAsync<Response<BookResultDto>>();
     }

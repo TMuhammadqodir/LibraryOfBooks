@@ -16,7 +16,7 @@ public class BooksController : BaseController
     }
 
     [HttpPost("create")]
-    public async Task<IActionResult> PostAsync([FromQuery] BookCreationDto dto)
+    public async Task<IActionResult> PostAsync([FromForm] BookCreationDto dto)
         => Ok(new Response
         {
             StatusCode = 200,
@@ -25,7 +25,7 @@ public class BooksController : BaseController
         });
 
     [HttpPut("update")]
-    public async Task<IActionResult> UpdateAsync([FromQuery] BookUpdateDto dto)
+    public async Task<IActionResult> UpdateAsync([FromBody] BookUpdateDto dto)
         => Ok(new Response
         {
             StatusCode = 200,

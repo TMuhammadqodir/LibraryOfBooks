@@ -2,7 +2,6 @@
 @using LibraryOfBooks.Web.DTOs.Books
 @using LibraryOfBooks.Web.DTOs.Assets
 @using LibraryOfBooks.Web.DTOs.BookCategories
-@using LibraryOfBooks.Web.Extentions
 @using LibraryOfBooks.Web.Services
 @inject BookService BookService
 @inject BookCategoryService BookCategoryService
@@ -342,6 +341,7 @@
         newBook.UserId = 3;
 
         var response = await BookService.UpdateBookAsync(updateBook);
+        
         if (response.StatusCode == 200)
         {
             showUpdateForm = false;
@@ -352,12 +352,12 @@
 
     private async Task HandleFileChange(InputFileChangeEventArgs e)
     {
-        newBook.File = await FileConverter.ToIFormFileAsync(e.File);
+        newBook.File = e.File;
     }
 
     private async Task HandleImageChange(InputFileChangeEventArgs e)
     {
-        newBook.Image = await FileConverter.ToIFormFileAsync(e.File);
+        newBook.Image = e.File;
     }
 
     private async Task DeleteBook(long id)

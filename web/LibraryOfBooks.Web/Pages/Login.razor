@@ -1,10 +1,12 @@
 ﻿@page "/login"
-
 @using System.ComponentModel.DataAnnotations
+@using System.Net.Http.Json
+@using Blazored.LocalStorage
 @using LibraryOfBooks.Web.DTOs.Responses
 @using LibraryOfBooks.Web.Interfaces
 @inject IAuthService AuthService
 @inject NavigationManager NavigationManager
+@inject ILocalStorageService localStorage
 
 <style>
     .login-container {
@@ -51,7 +53,8 @@
             <button type="submit" class="btn btn-login">Login</button>
         </div>
         <div class="mb-3 text-center">
-            <label class="form-label">New here? 
+            <label class="form-label">
+                New here?
                 <a href="/create-user">Create an account</a>
             </label>
         </div>
@@ -72,8 +75,9 @@
 
         if (userResponse.StatusCode == 200)
         {
-            Console.WriteLine("Token: " + userResponse.Data.Token);
-            NavigationManager.NavigateTo("/home");
+            await localStorage.SetItemAsync("authToken", userResponse.Data.Token);
+
+            NavigationManager.NavigateTo("/books");
         }
         else
         {

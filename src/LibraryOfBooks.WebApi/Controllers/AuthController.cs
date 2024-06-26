@@ -1,4 +1,5 @@
-﻿using LibraryOfBooks.Service.Interfaces;
+﻿using LibraryOfBooks.Service.DTOs.Users;
+using LibraryOfBooks.Service.Interfaces;
 using LibraryOfBooks.WebApi.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,13 +16,13 @@ public class AuthController : BaseController
 
     [AllowAnonymous]
     [HttpPost("login")]
-    public async Task<IActionResult> GenerateTokenAsync(string userName, string password)
+    public async Task<IActionResult> GenerateTokenAsync([FromBody] LoginRequest login)
     {
         return Ok(new Response
         {
             StatusCode = 200,
             Message = "Success",
-            Data = await this.authService.GenerateTokenAsync(userName, password)
+            Data = await this.authService.GenerateTokenAsync(login.UserName, login.Password)
         });
     }
 }

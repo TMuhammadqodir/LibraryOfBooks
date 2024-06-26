@@ -7,6 +7,22 @@
 @inject BookCategoryService CategoryService
 
 <div class="container">
+    <div style="margin-bottom: 20px;">
+        <div class="d-flex">
+            <select class="form-select me-2" style="margin-right: 10px;" @bind="selectedCategoryId">
+                <option value="">All Categories</option>
+                @if (bookCategories != null)
+                {
+                    @foreach (var category in bookCategories)
+                    {
+                        <option value="@category.Id">@category.Name</option>
+                    }
+                }
+            </select>
+            <input class="form-control me-2" type="search" placeholder="Search... Author, book name" aria-label="Search" @bind="searchQuery" @onkeypress="OnKeyPress">
+            <button class="btn btn-outline-success" type="button" @onclick="OnSearch">Search</button>
+        </div>
+    </div>
     <div class="row row-cols-1 row-cols-md-3 g-4">
         @if (books != null && books.Count > 0)
         {
@@ -158,6 +174,8 @@
     private BookResultDto selectedBook;
     private bool isFavorite = false;
     private long userId = 3;
+    private string searchQuery = "";
+    private long? selectedCategoryId = null;
 
     protected override async Task OnInitializedAsync()
     {
@@ -169,6 +187,19 @@
     private async Task LoadBooks()
     {
         var response = await BookService.GetAllBooksAsync();
+
+        if (!string.IsNullOrEmpty(searchQuery))
+        {
+            response.Data = response.Data.Where(book =>
+             book.Title.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
+             book.Author.Contains(searchQuery, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+
+        if (selectedCategoryId.HasValue && selectedCategoryId > 0)
+        {
+            response.Data = response.Data.Where(book => book.CategoryId == selectedCategoryId).ToList();
+        }
+
         books = response.Data.ToList();
     }
 
@@ -180,7 +211,7 @@
 
     private async Task LoadFavoriteBooks()
     {
-        var response = await BookService.GetAllFavoriteBooksAsync(3);
+        var response = await BookService.GetAllFavoriteBooksAsync(userId);
         favoriteBooks = response.Data.ToList();
     }
 
@@ -217,6 +248,19 @@
     private void CloseBookDetails()
     {
         showBookDetails = false;
-        categoryName = null; // Clear category name when closing modal
+        categoryName = null; 
+    }
+
+    private async Task OnSearch()
+    {
+        await LoadBooks();
+    }
+
+    private async Task OnKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await LoadBooks();
+        }
     }
 }
