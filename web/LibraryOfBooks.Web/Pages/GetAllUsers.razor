@@ -1,0 +1,52 @@
+﻿@page "/get-all-users"
+@using LibraryOfBooks.Web.DTOs.Users
+@using LibraryOfBooks.Web.Interfaces
+@inject IUserService UserService
+
+<h3>All Users</h3>
+
+<div>
+    <button @onclick="GetAllUser">Get All Users</button>
+</div>
+
+<div>
+    @if (Users != null)
+    {
+        <ul>
+            @foreach (var user in Users)
+            {
+                <li>
+                    <p>ID: @user.Id</p>
+                    <p>First Name: @user.FirstName</p>
+                    <p>Last Name: @user.LastName</p>
+                    <p>User Name: @user.UserName</p>
+                    <p>Role: @user.UserRole</p>
+                </li>
+            }
+        </ul>
+    }
+    else if (!string.IsNullOrEmpty(Message))
+    {
+        <p>@Message</p>
+    }
+</div>
+
+@code {
+    private IEnumerable<UserResultDto> Users { get; set; }
+    private string Message { get; set; }
+
+    private async Task GetAllUser()
+    {
+        var response = await UserService.GetAllUsersAsync();
+        if (response.StatusCode == 200)
+        {
+            Users = response.Data;
+            Message = string.Empty;
+        }
+        else
+        {
+            Message = "Error: " + response.Message;
+            Users = null;
+        }
+    }
+}

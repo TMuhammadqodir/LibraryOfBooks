@@ -1,4 +1,9 @@
 ﻿@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
+@inject IAuthService AuthService
+@using LibraryOfBooks.Web.Interfaces
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <div class="page">
     <div class="sidebar">
@@ -7,7 +12,14 @@
 
     <main>
         <div class="top-row px-4">
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
+            @if (isAuthenticated)
+            {
+                <button class="btn btn-outline-primary" @onclick="Logout">Logout</button>
+            }
+            else
+            {
+                <button class="btn btn-outline-primary" @onclick="Login">Login</button>
+            }
         </div>
 
         <article class="content px-4">
@@ -15,3 +27,37 @@
         </article>
     </main>
 </div>
+
+@code {
+    private bool isAuthenticated;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        isAuthenticated = authState.User.Identity.IsAuthenticated;
+        AuthenticationStateProvider.AuthenticationStateChanged += OnAuthenticationStateChanged;
+    }
+
+    private void Login()
+    {
+        NavigationManager.NavigateTo("login");
+    }
+
+    private async Task Logout()
+    {
+        await AuthService.LogoutAsync();
+        NavigationManager.NavigateTo("login");
+    }
+
+    private void OnAuthenticationStateChanged(Task<AuthenticationState> task)
+    {
+        var authState = task.Result;
+        isAuthenticated = authState.User.Identity.IsAuthenticated;
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        AuthenticationStateProvider.AuthenticationStateChanged -= OnAuthenticationStateChanged;
+    }
+}

@@ -1,0 +1,92 @@
+﻿@page "/create-user"
+
+@using System.ComponentModel.DataAnnotations
+@using LibraryOfBooks.Web.DTOs.Users
+@using LibraryOfBooks.Web.Interfaces
+@inject IUserService UserService
+@inject NavigationManager NavigationManager
+
+<style>
+    .signup-container {
+        max-width: 400px;
+        margin: auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
+        margin-top: 50px;
+        background-color: #f9f9f9;
+    }
+
+        .signup-container h3 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+    .btn-signup {
+        width: 100%;
+        background-color: #007bff;
+        color: white;
+    }
+</style>
+
+<div class="signup-container">
+    <h3>Sign up</h3>
+
+    <EditForm Model="newUser" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label for="createFirstName" class="form-label">First Name</label>
+            <InputText class="form-control" id="createFirstName" @bind-Value="newUser.FirstName" placeholder="Enter first name" />
+            <ValidationMessage For="@(() => newUser.FirstName)" />
+        </div>
+        <div class="mb-3">
+            <label for="createLastName" class="form-label">Last Name</label>
+            <InputText class="form-control" id="createLastName" @bind-Value="newUser.LastName" placeholder="Enter last name" />
+            <ValidationMessage For="@(() => newUser.LastName)" />
+        </div>
+        <div class="mb-3">
+            <label for="createUserName" class="form-label">User Name</label>
+            <InputText class="form-control" id="createUserName" @bind-Value="newUser.UserName" placeholder="Enter user name" />
+            <ValidationMessage For="@(() => newUser.UserName)" />
+        </div>
+        <div class="mb-3">
+            <label for="createPassword" class="form-label">Password</label>
+            <InputText type="password" class="form-control" id="createPassword" @bind-Value="newUser.Password" placeholder="Enter password" />
+            <ValidationMessage For="@(() => newUser.Password)" />
+        </div>
+        <div class="mb-3">
+            <button type="submit" class="btn btn-signup">Create User</button>
+        </div>
+        <div class="mb-3 text-center">
+            <label class="form-label">
+                Do you have already account?
+                <a href="/login">Login</a>
+            </label>
+        </div>
+    </EditForm>
+
+    <div class="text-center">
+        <small class="text-danger">@message</small>
+    </div>
+</div>
+
+@code {
+    private UserCreationDto newUser = new UserCreationDto();
+    private string message;
+
+    private async Task HandleValidSubmit()
+    {
+        var response = await UserService.CreateUserAsync(newUser);
+        if (response.StatusCode == 200)
+        {
+            NavigationManager.NavigateTo("/login");
+        }
+        else
+        {
+            message = "Error: " + response.Message;
+        }
+    }
+}

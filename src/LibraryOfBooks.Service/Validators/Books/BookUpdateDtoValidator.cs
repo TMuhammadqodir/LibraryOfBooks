@@ -36,17 +36,5 @@ public class BookUpdateDtoValidator : AbstractValidator<BookUpdateDto>
         RuleFor(x => x.UserId)
             .GreaterThan(0)
                 .WithMessage("UserId must be greater than 0.");
-
-        RuleFor(x => x.File)
-            .NotNull()
-                .WithMessage("File is required.")
-            .Must(f => f.Length > 0)
-                .WithMessage("File cannot be empty.");
-
-        RuleFor(x => x.Image)
-            .NotNull()
-                .WithMessage("Image is required.")
-            .Must(i => i.Length > 0)
-                .WithMessage("Image cannot be empty.");
     }
 }

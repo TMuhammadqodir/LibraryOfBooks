@@ -24,6 +24,7 @@ public class BookService : IBookService
     private readonly IRepository<BookCategory> categoryRepository;
     private readonly IValidator<BookUpdateDto> bookUpdateDtoValidator;
     private readonly IValidator<BookCreationDto> bookCreationDtoValidator;
+    private PaginationParams @params;
 
     public BookService(IMapper mapper,
         IAssetService assetService,
@@ -234,10 +235,19 @@ public class BookService : IBookService
             ?? throw new NotFoundException($"This user not found with {userId}");
 
         var favorites = await this.favoriteRepository.SelectAll(f => f.UserId.Equals(userId),
-            includes: new[] { "Book" })
+            includes: new[] { "Book.File", "Book.Image" })
             .ToListAsync();
 
         var books = favorites.Select(f => f.Book).ToList();
+
+        return this.mapper.Map<IEnumerable<BookResultDto>>(books);
+    }
+
+    public async ValueTask<IEnumerable<BookResultDto>> RetrieveByUserIdAsync(PaginationParams @params, long userId)
+    {
+        var books = await this.bookRepository.SelectAll(br => br.UserId.Equals(userId), includes: new[] { "Image", "File" })
+            .ToPaginate(@params)
+            .ToListAsync();
 
         return this.mapper.Map<IEnumerable<BookResultDto>>(books);
     }

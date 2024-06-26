@@ -1,0 +1,48 @@
+﻿@page "/upgrade-role"
+@using LibraryOfBooks.Web.Enums
+@using LibraryOfBooks.Web.Interfaces
+@inject IUserService UserService
+
+<h3>Upgrade User Role</h3>
+
+<div>
+    <label for="userId">User ID:</label>
+    <input id="userId" @bind="UserId" />
+</div>
+<div>
+    <label for="userRole">New Role:</label>
+    <select id="userRole" @bind="UserRole">
+        <option value="Admin">Admin</option>
+        <option value="SuperAdmin">SuperAdmin</option>
+    </select>
+</div>
+<div>
+    <button @onclick="UpgradeRole">Upgrade Role</button>
+</div>
+
+<!-- Notification Section -->
+<div>
+    @if (!string.IsNullOrEmpty(Message))
+    {
+        <p>@Message</p>
+    }
+</div>
+
+@code {
+    private long UserId { get; set; }
+    private EUserRole UserRole { get; set; } = EUserRole.Admin; // Default role selection
+    private string Message { get; set; }
+
+    private async Task UpgradeRole()
+    {
+        var response = await UserService.UpgradeRoleAsync(UserId, UserRole);
+        if (response.StatusCode == 200)
+        {
+            Message = "User role upgraded successfully.";
+        }
+        else
+        {
+            Message = "Error: " + response.Message;
+        }
+    }
+}

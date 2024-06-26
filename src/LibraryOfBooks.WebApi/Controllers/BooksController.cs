@@ -16,7 +16,7 @@ public class BooksController : BaseController
     }
 
     [HttpPost("create")]
-    public async Task<IActionResult> PostAsync([FromQuery] BookCreationDto dto)
+    public async Task<IActionResult> PostAsync([FromForm] BookCreationDto dto)
         => Ok(new Response
         {
             StatusCode = 200,
@@ -25,7 +25,7 @@ public class BooksController : BaseController
         });
 
     [HttpPut("update")]
-    public async Task<IActionResult> UpdateAsync([FromQuery] BookUpdateDto dto)
+    public async Task<IActionResult> UpdateAsync([FromBody] BookUpdateDto dto)
         => Ok(new Response
         {
             StatusCode = 200,
@@ -63,6 +63,16 @@ public class BooksController : BaseController
             Data = await this.bookService.RetrieveAllAsync(@params)
         });
 
+    [AllowAnonymous]
+    [HttpGet("get-by-user-id/{userId:long}")]
+    public async ValueTask<IActionResult> GetByUserIdAsync(
+       [FromQuery] PaginationParams @params, long userId)
+       => Ok(new Response
+       {
+           StatusCode = 200,
+           Message = "Success",
+           Data = await this.bookService.RetrieveByUserIdAsync(@params, userId)
+       });
 
     [AllowAnonymous]
     [HttpGet("get-by-categoryId/{categoryId:long}")]

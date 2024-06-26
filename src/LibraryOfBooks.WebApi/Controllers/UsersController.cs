@@ -19,7 +19,7 @@ public class UsersController : BaseController
 
     [AllowAnonymous]
     [HttpPost("create")]
-    public async ValueTask<IActionResult> PostAsync([FromForm] UserCreationDto dto)
+    public async ValueTask<IActionResult> PostAsync([FromBody] UserCreationDto dto)
         => Ok(new Response
         {
             StatusCode = 200,
@@ -28,7 +28,7 @@ public class UsersController : BaseController
         });
 
     [HttpPut("update")]
-    public async ValueTask<IActionResult> PutAsync([FromForm] UserUpdateDto dto)
+    public async ValueTask<IActionResult> PutAsync([FromBody] UserUpdateDto dto)
         => Ok(new Response
         {
             StatusCode = 200,

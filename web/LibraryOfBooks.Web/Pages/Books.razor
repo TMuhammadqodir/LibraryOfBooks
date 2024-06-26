@@ -1,112 +1,266 @@
 ﻿@page "/books"
 
+@using LibraryOfBooks.Web.DTOs.BookCategories
 @using LibraryOfBooks.Web.DTOs.Books
-@using LibraryOfBooks.Web.Extentions
-@inject LibraryOfBooks.Web.Services.BookService BookService
+@using LibraryOfBooks.Web.Services
+@inject BookService BookService
+@inject BookCategoryService CategoryService
 
-<h3>Books</h3>
-
-<button @onclick="LoadBooks">Load Books</button>
-<button @onclick="ShowCreateForm">Add New Book</button>
-
-@if (showCreateForm)
-{
-    <EditForm Model="newBook" OnValidSubmit="CreateBook">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
-        <div>
-            <label>Title:</label>
-            <InputText @bind-Value="newBook.Title" />
+<div class="container">
+    <div style="margin-bottom: 20px;">
+        <div class="d-flex">
+            <select class="form-select me-2" style="margin-right: 10px;" @bind="selectedCategoryId">
+                <option value="">All Categories</option>
+                @if (bookCategories != null)
+                {
+                    @foreach (var category in bookCategories)
+                    {
+                        <option value="@category.Id">@category.Name</option>
+                    }
+                }
+            </select>
+            <input class="form-control me-2" type="search" placeholder="Search... Author, book name" aria-label="Search" @bind="searchQuery" @onkeypress="OnKeyPress">
+            <button class="btn btn-outline-success" type="button" @onclick="OnSearch">Search</button>
         </div>
-        <div>
-            <label>Author:</label>
-            <InputText @bind-Value="newBook.Author" />
-        </div>
-        <div>
-            <label>Description:</label>
-            <InputTextArea @bind-Value="newBook.Description" />
-        </div>
-        <div>
-            <label>Category ID:</label>
-            <InputNumber @bind-Value="newBook.CategoryId" />
-        </div>
-        <div>
-            <label>User ID:</label>
-            <InputNumber @bind-Value="newBook.UserId" />
-        </div>
-        <div>
-            <label>File:</label>
-            <InputFile OnChange="HandleFileChange" />
-        </div>
-        <div>
-            <label>Image:</label>
-            <InputFile OnChange="HandleImageChange" />
-        </div>
-        <button type="submit">Create</button>
-    </EditForm>
-}
-
-@if (books != null)
-{
-    <ul>
-        @foreach (var book in books)
+    </div>
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        @if (books != null && books.Count > 0)
         {
-            <li>
-                @book.Title - @book.Author
-                <button @onclick="() => ShowUpdateForm(book.Id)">Edit</button>
-                <button @onclick="() => DeleteBook(book.Id)">Delete</button>
-            </li>
+            @foreach (var book in books)
+            {
+                <div class="col">
+                    <div class="card h-100 book-card shadow-lg">
+                        <div @onclick="() => ShowBookDetails(book)" class="cursor-pointer">
+                            @if (book.Image != null && !string.IsNullOrEmpty(book.Image.FilePath))
+                            {
+                                <img src="@book.Image.FilePath" class="card-img-top book-image rounded-top" alt="@book.Title" style="object-fit: cover; height: 150px;">
+                            }
+                            else
+                            {
+                                <div class="card-img-top book-image rounded-top" style="height: 150px; background-color: #f5f5f5; display: flex; justify-content: center; align-items: center;">
+                                    <i class="fas fa-book fa-3x text-secondary"></i>
+                                </div>
+                            }
+                            <div class="card-body">
+                                <h5 class="card-title">@book.Title</h5>
+                                <p class="card-text">Author: @book.Author</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
         }
-    </ul>
-}
+        else
+        {
+            <div class="col-12 text-center">
+                <p class="text-muted">No books found.</p>
+            </div>
+        }
+    </div>
+
+    @if (showBookDetails && selectedBook != null)
+    {
+        <div class="modal fade show" tabindex="-1" style="display: block; background: rgba(0, 0, 0, 0.5);">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">@selectedBook.Title</h5>
+                        <button type="button" class="close" @onclick="CloseBookDetails">
+                            <span>&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <img src="@selectedBook.Image.FilePath" class="img-fluid rounded shadow-lg" alt="@selectedBook.Title" style="max-width: 100%; height: 250px; object-fit: cover;">
+                            </div>
+                            <div class="col-md-8">
+                                <h6>Book Details</h6>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">
+                                        <strong>Category:</strong> @categoryName
+                                    </li>
+                                    <li class="list-group-item">
+                                        <strong>Title:</strong> @selectedBook.Title
+                                    </li>
+                                    <li class="list-group-item">
+                                        <strong>Author:</strong> @selectedBook.Author
+                                    </li>
+                                    <li class="list-group-item">
+                                        <strong>Description:</strong> @selectedBook.Description
+                                    </li>
+                                </ul>
+                                <div class="d-grid gap-2 mt-3">
+                                    <a href="@selectedBook.File.FilePath" class="btn btn-primary btn-lg" download="@selectedBook.File.FileName">
+                                        <i class="fas fa-download"></i> Download File
+                                    </a>
+                                    <button class="btn @(isFavorite ? "btn-danger" : "btn-success") btn-lg" @onclick="ToggleFavorite">
+                                        @(isFavorite ? "Remove from Favorites" : "Add to Favorites")
+                                        <i class="@(isFavorite ? "fas fa-heart-broken" : "fas fa-heart")"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .book-card {
+        cursor: pointer;
+        transition: transform 0.2s;
+        border: none;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+    }
+
+        .book-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0px 0px 25px rgba(0, 0, 0, 0.2);
+        }
+
+    .book-image {
+        height: 250px;
+        object-fit: cover;
+        border-radius: 10px 10px 0 0;
+    }
+
+    .modal-content {
+        background-color: #fff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-header {
+        border-bottom: 1px solid #dee2e6;
+        padding: 1rem 1.5rem;
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+    }
+
+    .close {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        color: #000;
+        font-size: 1.5rem;
+        cursor: pointer;
+    }
+
+        .close:hover {
+            color: #000;
+        }
+
+    .img-fluid {
+        max-width: 100%;
+        height: auto;
+        border-radius: 10px;
+    }
+</style>
 
 @code {
     private List<BookResultDto> books;
-    private BookCreationDto newBook = new BookCreationDto();
-    private bool showCreateForm = false;
+    private List<BookResultDto> favoriteBooks;
+    private List<BookCategoryResultDto> bookCategories;
+    private string categoryName;
+    private bool showBookDetails = false;
+    private BookResultDto selectedBook;
+    private bool isFavorite = false;
+    private long userId = 3;
+    private string searchQuery = "";
+    private long? selectedCategoryId = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadBooks();
+        await LoadFavoriteBooks();
+        await LoadBookCategories();
+    }
 
     private async Task LoadBooks()
     {
         var response = await BookService.GetAllBooksAsync();
+
+        if (!string.IsNullOrEmpty(searchQuery))
+        {
+            response.Data = response.Data.Where(book =>
+             book.Title.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
+             book.Author.Contains(searchQuery, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+
+        if (selectedCategoryId.HasValue && selectedCategoryId > 0)
+        {
+            response.Data = response.Data.Where(book => book.CategoryId == selectedCategoryId).ToList();
+        }
+
         books = response.Data.ToList();
     }
 
-    private void ShowCreateForm()
+    private async Task LoadBookCategories()
     {
-        showCreateForm = true;
+        var response = await CategoryService.GetAllBookCategoriesAsync();
+        bookCategories = response.ToList();
     }
 
-    private async Task CreateBook()
+    private async Task LoadFavoriteBooks()
     {
-        var response = await BookService.CreateBookAsync(newBook);
-        if (response.StatusCode == 200)
+        var response = await BookService.GetAllFavoriteBooksAsync(userId);
+        favoriteBooks = response.Data.ToList();
+    }
+
+    private void ShowBookDetails(BookResultDto book)
+    {
+        selectedBook = book;
+        isFavorite = favoriteBooks.Any(b => b.Id == book.Id);
+        GetCategoryName(selectedBook.CategoryId);
+        showBookDetails = true;
+    }
+
+    private void GetCategoryName(long categoryId)
+    {
+        var category = bookCategories.FirstOrDefault(bc => bc.Id.Equals(categoryId));
+        categoryName = category?.Name ?? "Unknown Category";
+    }
+
+    private async Task ToggleFavorite()
+    {
+        if (isFavorite)
         {
-            showCreateForm = false;
-            await LoadBooks();
+            await BookService.DeleteFavoriteBookAsync(userId, selectedBook.Id);
+            favoriteBooks.Remove(selectedBook);
+            isFavorite = false;
+        }
+        else
+        {
+            await BookService.AddFavoriteBookAsync(userId, selectedBook.Id);
+            favoriteBooks.Add(selectedBook);
+            isFavorite = true;
         }
     }
 
-    private async void HandleFileChange(InputFileChangeEventArgs e)
+    private void CloseBookDetails()
     {
-        newBook.File = await FileConverter.ToIFormFileAsync(e.File);
+        showBookDetails = false;
+        categoryName = null; 
     }
 
-    private async void HandleImageChange(InputFileChangeEventArgs e)
+    private async Task OnSearch()
     {
-        newBook.Image = await FileConverter.ToIFormFileAsync(e.File);
+        await LoadBooks();
     }
 
-    private async Task DeleteBook(long id)
+    private async Task OnKeyPress(KeyboardEventArgs e)
     {
-        var response = await BookService.DeleteBookAsync(id);
-        if (response.StatusCode == 200)
+        if (e.Key == "Enter")
         {
             await LoadBooks();
         }
-    }
-
-    private void ShowUpdateForm(long id)
-    {
-        // Logic to show update form and populate with book data
     }
 }

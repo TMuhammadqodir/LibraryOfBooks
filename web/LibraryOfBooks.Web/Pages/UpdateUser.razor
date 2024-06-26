@@ -1,0 +1,56 @@
+﻿@page "/update-user"
+@using LibraryOfBooks.Web.DTOs.Users
+@using LibraryOfBooks.Web.Interfaces
+@inject IUserService UserService
+
+<h3>Update User</h3>
+
+<div>
+    <label for="id">User ID:</label>
+    <input id="id" @bind="User.Id" />
+</div>
+<div>
+    <label for="firstName">First Name:</label>
+    <input id="firstName" @bind="User.FirstName" />
+</div>
+<div>
+    <label for="lastName">Last Name:</label>
+    <input id="lastName" @bind="User.LastName" />
+</div>
+<div>
+    <label for="userName">User Name:</label>
+    <input id="userName" @bind="User.UserName" />
+</div>
+<div>
+    <label for="password">Password:</label>
+    <input id="password" type="password" @bind="User.Password" />
+</div>
+<div>
+    <button @onclick="UpdateUsers">Update User</button>
+</div>
+
+<div>
+    @if (!string.IsNullOrEmpty(Message))
+    {
+        <p>@Message</p>
+    }
+</div>
+
+@code {
+    private UserUpdateDto User { get; set; } = new UserUpdateDto();
+    private string Message { get; set; }
+
+    private async Task UpdateUsers()
+    {
+        var response = await UserService.UpdateUserAsync(User);
+
+        if (response.StatusCode == 200)
+        {
+            Message = "User updated successfully.";
+        }
+        else
+        {
+            Message = "Error: " + response.Message;
+        }
+    }
+}

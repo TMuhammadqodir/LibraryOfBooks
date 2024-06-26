@@ -16,6 +16,14 @@ public static class FileConverter
         await stream.CopyToAsync(ms);
         ms.Position = 0;
 
-        return new FormFile(ms, 0, browserFile.Size, browserFile.Name, browserFile.Name);
+        var formFile = new FormFile(ms, 0, browserFile.Size, browserFile.Name, browserFile.Name)
+        {
+            Headers = new HeaderDictionary(),
+            ContentType = browserFile.ContentType
+        };
+
+        formFile.ContentDisposition = $"form-data; name=\"{browserFile.Name}\"; filename=\"{browserFile.Name}\"";
+
+        return formFile;
     }
 }
