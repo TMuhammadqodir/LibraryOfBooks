@@ -15,6 +15,8 @@ public class BookCategoriesController : BaseController
         this.bookCategoryService = bookCategoryService;
     }
 
+
+    [Authorize(Roles = "Admin, SuperAdmin")]
     [HttpPost("create")]
     public async ValueTask<IActionResult> PostAsync(BookCategoryCreationDto dto)
         => Ok(new Response
@@ -24,6 +26,7 @@ public class BookCategoriesController : BaseController
             Data = await bookCategoryService.AddAsync(dto)
         });
 
+    [Authorize(Roles = "Admin, SuperAdmin")]
     [HttpPost("update")]
     public async ValueTask<IActionResult> UpdateAsync(BookCategoryUpdateDto dto)
         => Ok(new Response
@@ -33,6 +36,7 @@ public class BookCategoriesController : BaseController
             Data = await bookCategoryService.ModifyAsync(dto)
         });
 
+    [Authorize(Roles = "Admin, SuperAdmin")]
     [HttpDelete("delete/{id:long}")]
     public async ValueTask<IActionResult> DeleteAsync(long id)
         => Ok(new Response

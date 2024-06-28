@@ -29,7 +29,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-//builder.Services.ConfigureSwagger();
+builder.Services.ConfigureSwagger();
 
 //Add DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -45,7 +45,7 @@ builder.Services.AddControllersWithViews()
 builder.Services.AddServices();
 
 //JWT token
-//builder.Services.AddJwt(builder.Configuration);
+builder.Services.AddJwt(builder.Configuration);
 
 // Logger
 var logger = new LoggerConfiguration()
@@ -66,6 +66,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseAuthentication();
+
+app.UseAuthorization();
+
 app.UseMiddleware<ExceptionHandlerMiddleware>();
 
 app.UseStaticFiles();
@@ -73,10 +77,6 @@ app.UseStaticFiles();
 app.UseCors("AllowAllOrigins");
 
 app.UseHttpsRedirection();
-
-app.UseAuthentication();
-
-app.UseAuthorization();
 
 app.MapControllers();
 

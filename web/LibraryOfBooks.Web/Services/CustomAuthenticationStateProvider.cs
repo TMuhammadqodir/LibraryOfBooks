@@ -1,56 +1,49 @@
-﻿using Microsoft.AspNetCore.Components.Authorization;
+﻿using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Components.Authorization;
+using System;
+using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Blazored.LocalStorage;
 
-namespace LibraryOfBooks.Web.Services
+public class CustomAuthenticationStateProvider : AuthenticationStateProvider
 {
-    public class CustomAuthenticationStateProvider : AuthenticationStateProvider
+    private readonly ILocalStorageService _localStorage;
+
+    public CustomAuthenticationStateProvider(ILocalStorageService localStorage)
     {
-        private readonly ILocalStorageService localStorage;
-        private readonly AuthenticationState anonymous;
+        _localStorage = localStorage;
+    }
 
-        public CustomAuthenticationStateProvider(ILocalStorageService localStorage)
-        {
-            this.localStorage = localStorage;
-            anonymous = new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
-        }
+    public override async Task<AuthenticationState> GetAuthenticationStateAsync()
+    {
+        var token = await _localStorage.GetItemAsync<string>("authToken");
 
-        public override async Task<AuthenticationState> GetAuthenticationStateAsync()
-        {
-            var token = await localStorage.GetItemAsync<string>("authToken");
+        var identity = string.IsNullOrEmpty(token) ? new ClaimsIdentity() : new ClaimsIdentity(ParseClaimsFromJwt(token), "jwt");
 
-            if (string.IsNullOrWhiteSpace(token))
-            {
-                return anonymous;
-            }
+        var user = new ClaimsPrincipal(identity);
 
-            var identity = new ClaimsIdentity(new[]
-            {
-                new Claim(ClaimTypes.Name, "username") // Tokenni parse qilish va foydalanuvchi ma'lumotlarini qo'shish kerak
-            }, "jwt");
+        return new AuthenticationState(user);
+    }
 
-            var user = new ClaimsPrincipal(identity);
+    public async Task MarkUserAsAuthenticated(string token)
+    {
+        await _localStorage.SetItemAsync("authToken", token);
+        var authenticatedUser = new ClaimsPrincipal(new ClaimsIdentity(ParseClaimsFromJwt(token), "jwt"));
+        var authState = Task.FromResult(new AuthenticationState(authenticatedUser));
+        NotifyAuthenticationStateChanged(authState);
+    }
 
-            return new AuthenticationState(user);
-        }
+    public async Task MarkUserAsLoggedOut()
+    {
+        await _localStorage.RemoveItemAsync("authToken");
+        var anonymousUser = new ClaimsPrincipal(new ClaimsIdentity());
+        var authState = Task.FromResult(new AuthenticationState(anonymousUser));
+        NotifyAuthenticationStateChanged(authState);
+    }
 
-        public void NotifyUserAuthentication(string username)
-        {
-            var identity = new ClaimsIdentity(new[]
-            {
-                new Claim(ClaimTypes.Name, username)
-            }, "jwt");
-
-            var user = new ClaimsPrincipal(identity);
-
-            NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(user)));
-        }
-
-        public void NotifyUserLogout()
-        {
-            var anonymousUser = new ClaimsPrincipal(new ClaimsIdentity());
-            NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(anonymousUser)));
-        }
+    private IEnumerable<Claim> ParseClaimsFromJwt(string jwt)
+    {
+        // Implement JWT parsing logic here if necessary
+        return new List<Claim>();
     }
 }

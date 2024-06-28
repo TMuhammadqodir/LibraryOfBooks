@@ -5,28 +5,30 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
-
-    <main>
-        <div class="top-row px-4">
-            @if (isAuthenticated)
-            {
-                <button class="btn btn-outline-primary" @onclick="Logout">Logout</button>
-            }
-            else
-            {
-                <button class="btn btn-outline-primary" @onclick="Login">Login</button>
-            }
+<CascadingAuthenticationState>
+    <div class="page">
+        <div class="sidebar">
+            <NavMenu />
         </div>
 
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
+        <main>
+            <div class="top-row px-4">
+                @if (isAuthenticated)
+                {
+                    <button class="btn btn-outline-danger" @onclick="Logout">Logout</button>
+                }
+                else
+                {
+                    <button class="btn btn-outline-success" @onclick="Login">Login</button>
+                }
+            </div>
+
+            <article class="content px-4">
+                @Body
+            </article>
+        </main>
+    </div>
+</CascadingAuthenticationState>
 
 @code {
     private bool isAuthenticated;

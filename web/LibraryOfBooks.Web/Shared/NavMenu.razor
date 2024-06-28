@@ -1,4 +1,8 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href=""><i class="bi bi-columns-gap"></i>&nbsp; Library Of Books</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
@@ -14,12 +18,12 @@
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="my-books">
+            <NavLink class="nav-link" @onclick="NavigateToMyBooks">
                 <i class="bi bi-book"></i>&nbsp; My Books
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="favorite-books">
+            <NavLink class="nav-link" @onclick="NavigateToFavorites">
                 <i class="bi bi-bookmark-check"></i>&nbsp; Favorites
             </NavLink>
         </div>
@@ -28,11 +32,55 @@
 
 @code {
     private bool collapseNavMenu = true;
+    private bool isAuthenticated;
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        isAuthenticated = authState.User.Identity.IsAuthenticated;
+        AuthenticationStateProvider.AuthenticationStateChanged += OnAuthenticationStateChanged;
+    }
 
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+    }
+
+    private void NavigateToMyBooks()
+    {
+        if (isAuthenticated)
+        {
+            NavigationManager.NavigateTo("my-books");
+        }
+        else
+        {
+            NavigationManager.NavigateTo("login");
+        }
+    }
+
+    private void NavigateToFavorites()
+    {
+        if (isAuthenticated)
+        {
+            NavigationManager.NavigateTo("favorite-books");
+        }
+        else
+        {
+            NavigationManager.NavigateTo("login");
+        }
+    }
+
+    private void OnAuthenticationStateChanged(Task<AuthenticationState> task)
+    {
+        var authState = task.Result;
+        isAuthenticated = authState.User.Identity.IsAuthenticated;
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        AuthenticationStateProvider.AuthenticationStateChanged -= OnAuthenticationStateChanged;
     }
 }

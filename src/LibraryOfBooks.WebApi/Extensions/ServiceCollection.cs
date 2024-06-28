@@ -5,6 +5,7 @@ using LibraryOfBooks.Domain.Entities;
 using LibraryOfBooks.Service.DTOs.BookCategories;
 using LibraryOfBooks.Service.DTOs.Books;
 using LibraryOfBooks.Service.DTOs.Users;
+using LibraryOfBooks.Service.Helpers;
 using LibraryOfBooks.Service.Interfaces;
 using LibraryOfBooks.Service.Mappers;
 using LibraryOfBooks.Service.Services;
@@ -23,6 +24,10 @@ public static class ServiceCollection
 {
     public static void AddServices(this IServiceCollection services)
     {
+
+        //HttpContexts
+        services.AddHttpContextAccessor();
+
         //Services
         services.AddScoped<IBookService, BookService>();
         services.AddScoped<IUserService, UserService>();
@@ -38,14 +43,17 @@ public static class ServiceCollection
         services.AddScoped<IValidator<BookCategoryUpdateDto>, BookCategoryUpdateDtoValidator>();
         services.AddScoped<IValidator<BookCategoryCreationDto>, BookCategoryCreationDtoValidator>();
 
-        //HttpContexts
-        services.AddHttpContextAccessor();
-        
         //Mappers
         services.AddAutoMapper(typeof(MappingProfile));
 
+
         //Repositories
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+
+        // HttpContextHelper ni konfiguratsiya qilish
+        var serviceProvider = services.BuildServiceProvider();
+        var httpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
+        HttpContextHelper.Configure(httpContextAccessor);
 
         //Swagger Lowercase
         services.AddRouting(options => options.LowercaseUrls = true);

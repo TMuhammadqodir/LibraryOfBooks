@@ -3,8 +3,11 @@
 @using LibraryOfBooks.Web.DTOs.BookCategories
 @using LibraryOfBooks.Web.DTOs.Books
 @using LibraryOfBooks.Web.Services
+@using Microsoft.AspNetCore.Components.Authorization
 @inject BookService BookService
 @inject BookCategoryService CategoryService
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <div class="container">
     <div style="margin-bottom: 20px;">
@@ -91,7 +94,7 @@
                                     </li>
                                 </ul>
                                 <div class="d-grid gap-2 mt-3">
-                                    <a href="@selectedBook.File.FilePath" class="btn btn-primary btn-lg" download="@selectedBook.File.FileName">
+                                    <a href="@(isAuthenticated ? selectedBook.File.FilePath : "login")" class="btn btn-primary btn-lg" download="@(isAuthenticated ? selectedBook.File.FileName : null)">
                                         <i class="fas fa-download"></i> Download File
                                     </a>
                                     <button class="btn @(isFavorite ? "btn-danger" : "btn-success") btn-lg" @onclick="ToggleFavorite">
@@ -173,15 +176,20 @@
     private bool showBookDetails = false;
     private BookResultDto selectedBook;
     private bool isFavorite = false;
-    private long userId = 3;
     private string searchQuery = "";
     private long? selectedCategoryId = null;
+    private bool isAuthenticated;
 
     protected override async Task OnInitializedAsync()
     {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        isAuthenticated = authState.User.Identity.IsAuthenticated;
         await LoadBooks();
-        await LoadFavoriteBooks();
         await LoadBookCategories();
+        if (isAuthenticated)
+        {
+            await LoadFavoriteBooks();
+        }
     }
 
     private async Task LoadBooks()
@@ -211,14 +219,17 @@
 
     private async Task LoadFavoriteBooks()
     {
-        var response = await BookService.GetAllFavoriteBooksAsync(userId);
+        var response = await BookService.GetAllFavoriteBooksAsync();
         favoriteBooks = response.Data.ToList();
     }
 
     private void ShowBookDetails(BookResultDto book)
     {
         selectedBook = book;
-        isFavorite = favoriteBooks.Any(b => b.Id == book.Id);
+        if (isAuthenticated)
+        {
+            isFavorite = favoriteBooks.Any(b => b.Id == book.Id);
+        }
         GetCategoryName(selectedBook.CategoryId);
         showBookDetails = true;
     }
@@ -231,17 +242,24 @@
 
     private async Task ToggleFavorite()
     {
-        if (isFavorite)
+        if (isAuthenticated)
         {
-            await BookService.DeleteFavoriteBookAsync(userId, selectedBook.Id);
-            favoriteBooks.Remove(selectedBook);
-            isFavorite = false;
+            if (isFavorite)
+            {
+                await BookService.DeleteFavoriteBookAsync(selectedBook.Id);
+                favoriteBooks.Remove(selectedBook);
+                isFavorite = false;
+            }
+            else
+            {
+                await BookService.AddFavoriteBookAsync(selectedBook.Id);
+                favoriteBooks.Add(selectedBook);
+                isFavorite = true;
+            }
         }
         else
         {
-            await BookService.AddFavoriteBookAsync(userId, selectedBook.Id);
-            favoriteBooks.Add(selectedBook);
-            isFavorite = true;
+            NavigationManager.NavigateTo("login");
         }
     }
 

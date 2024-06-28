@@ -165,7 +165,7 @@
 
     private async Task LoadFavoriteBooks()
     {
-        var response = await BookService.GetAllFavoriteBooksAsync(3);
+        var response = await BookService.GetAllFavoriteBooksAsync();
         books = response.Data.ToList();
     }
 
@@ -190,7 +190,7 @@
 
     private async Task RemoveFavorite(long bookId)
     {
-        var response = await BookService.DeleteFavoriteBookAsync(userId, bookId);
+        var response = await BookService.DeleteFavoriteBookAsync(bookId);
         if (response.Data)
         {
             books.Remove(books.First(b => b.Id == bookId));

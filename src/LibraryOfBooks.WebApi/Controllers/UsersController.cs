@@ -54,6 +54,9 @@ public class UsersController : BaseController
             Data = await this.userService.RetrieveByIdAsync(id)
         });
 
+
+
+    [Authorize(Roles = "Admin, SuperAdmin")]
     [HttpGet("get-all")]
     public async ValueTask<IActionResult> GetAllAsync( 
         [FromQuery] PaginationParams @params)
@@ -64,6 +67,8 @@ public class UsersController : BaseController
             Data = await this.userService.RetrieveAllAsync(@params)
         });
 
+
+    [Authorize(Roles = "SuperAdmin")]
     [HttpPatch("upgrade-role")]
     public async ValueTask<IActionResult> UpgradeRoleAsync(long id, EUserRole role)
         => Ok(new Response
