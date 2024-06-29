@@ -23,6 +23,7 @@
                     <div class="modal-body">
                         <EditForm Model="newBook" OnValidSubmit="CreateBook">
                             <DataAnnotationsValidator />
+                            <ValidationSummary />
 
                             <div class="mb-3">
                                 <label for="title" class="form-label">Title:</label>
@@ -42,26 +43,27 @@
                                 <ValidationMessage For="@(() => newBook.Description)" />
                             </div>
 
-                            <div class="mb-3">
-                                <label for="categoryId" class="form-label">Category:</label>
-                                <select id="categoryId" @bind="@newBook.CategoryId" class="form-control">
-                                    <option value="">Select a category</option>
+                            <div class="mb-3 d-flex align-items-center">
+                                <label for="categoryId" class="form-label">Select category:</label>
+                                <InputSelect id="categoryId" @bind-Value="@newBook.CategoryId" class="input-select">
                                     @foreach (var category in categories)
                                     {
                                         <option value="@category.Id">@category.Name</option>
                                     }
-                                </select>
+                                </InputSelect>
                                 <ValidationMessage For="@(() => newBook.CategoryId)" />
                             </div>
 
                             <div class="mb-3">
                                 <label for="file" class="form-label">File:</label>
                                 <InputFile id="file" OnChange="HandleFileChange" class="form-control" />
+                                <ValidationMessage For="@(() => newBook.File)" />
                             </div>
 
                             <div class="mb-3">
                                 <label for="image" class="form-label">Image:</label>
                                 <InputFile id="image" OnChange="HandleImageChange" class="form-control" />
+                                <ValidationMessage For="@(() => newBook.Image)" />
                             </div>
 
                             <button type="submit" class="btn btn-primary">Create</button>
@@ -87,31 +89,35 @@
                     <div class="modal-body">
                         <EditForm Model="updateBook" OnValidSubmit="UpdateBook">
                             <DataAnnotationsValidator />
+                            <ValidationSummary />
 
                             <div class="mb-3">
                                 <label for="updateTitle" class="form-label">Title:</label>
                                 <InputText id="updateTitle" @bind-Value="updateBook.Title" class="form-control" />
+                                <ValidationMessage For="@(() => updateBook.Title)" />
                             </div>
 
                             <div class="mb-3">
                                 <label for="updateAuthor" class="form-label">Author:</label>
                                 <InputText id="updateAuthor" @bind-Value="updateBook.Author" class="form-control" />
+                                <ValidationMessage For="@(() => updateBook.Author)" />
                             </div>
 
                             <div class="mb-3">
                                 <label for="updateDescription" class="form-label">Description:</label>
-                                <InputTextArea id="updateDescription" @bind-Value="updateBook.Description" class="form-control" />           
+                                <InputTextArea id="updateDescription" @bind-Value="updateBook.Description" class="form-control" />
+                                <ValidationMessage For="@(() => updateBook.Description)" />
                             </div>
 
-                            <div class="mb-3">
-                                <label for="updateCategoryId" class="form-label">Category:</label>
-                                <InputSelect id="updateCategoryId" @bind-Value="updateBook.CategoryId" class="form-control">
-                                    <option value="">Select category...</option>
+                            <div class="mb-3 d-flex align-items-center">
+                                <label for="updateCategoryId" class="form-label">Select category:</label>
+                                <InputSelect id="updateCategoryId" @bind-Value="@updateBook.CategoryId" class="input-select">
                                     @foreach (var category in categories)
                                     {
                                         <option value="@category.Id">@category.Name</option>
                                     }
                                 </InputSelect>
+                                <ValidationMessage For="@(() => newBook.CategoryId)" />
                             </div>
 
                             <button type="submit" class="btn btn-primary">Update</button>
@@ -221,6 +227,12 @@
         .book-card:hover {
             transform: scale(1.05);
         }
+    
+    .input-select{
+        min-height: 30px;
+        min-width: 624px;
+        margin-left: 10px;
+    }
 
     .book-image {
         height: 200px;
@@ -282,7 +294,6 @@
     private bool showBookDetails = false;
     private BookResultDto selectedBook;
     private string categoryName;
-    private long userId = 3;
 
     protected override async Task OnInitializedAsync()
     {
@@ -293,7 +304,7 @@
 
     private async Task LoadBooks()
     {
-        var response = await BookService.GetByUserIdBooksAsync(3);
+        var response = await BookService.GetByUserIdBooksAsync();
         books = response.Data.ToList();
     }
 
@@ -326,7 +337,7 @@
 
     private async Task CreateBook()
     {
-        newBook.UserId = 3;
+        newBook.UserId = 0;
         var response = await BookService.CreateBookAsync(newBook);
         if (response.StatusCode == 200)
         {
@@ -338,10 +349,10 @@
 
     private async Task UpdateBook()
     {
-        newBook.UserId = 3;
+        updateBook.UserId = 0;
 
         var response = await BookService.UpdateBookAsync(updateBook);
-        
+
         if (response.StatusCode == 200)
         {
             showUpdateForm = false;
@@ -400,7 +411,7 @@
 
     private async Task LoadFavoriteBooks()
     {
-        var response = await BookService.GetAllFavoriteBooksAsync(3);
+        var response = await BookService.GetAllFavoriteBooksAsync();
         favoriteBooks = response.Data.ToList();
     }
 
@@ -408,13 +419,13 @@
     {
         if (isFavorite)
         {
-            await BookService.DeleteFavoriteBookAsync(userId, selectedBook.Id);
+            await BookService.DeleteFavoriteBookAsync(selectedBook.Id);
             favoriteBooks.Remove(selectedBook);
             isFavorite = false;
         }
         else
         {
-            await BookService.AddFavoriteBookAsync(userId, selectedBook.Id);
+            await BookService.AddFavoriteBookAsync(selectedBook.Id);
             favoriteBooks.Add(selectedBook);
             isFavorite = true;
         }

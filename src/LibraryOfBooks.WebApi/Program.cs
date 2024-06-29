@@ -16,8 +16,7 @@ builder.Services.AddCors(options =>
         {
             builder.WithOrigins("https://localhost:7053")
                    .AllowAnyHeader()
-                   .AllowAnyMethod()
-                   .AllowCredentials();
+                   .AllowAnyMethod();
         });
 });
 
@@ -29,7 +28,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-//builder.Services.ConfigureSwagger();
+builder.Services.ConfigureSwagger();
 
 //Add DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -45,7 +44,7 @@ builder.Services.AddControllersWithViews()
 builder.Services.AddServices();
 
 //JWT token
-//builder.Services.AddJwt(builder.Configuration);
+builder.Services.AddJwt(builder.Configuration);
 
 // Logger
 var logger = new LoggerConfiguration()
@@ -66,13 +65,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseMiddleware<ExceptionHandlerMiddleware>();
-
-app.UseStaticFiles();
-
 app.UseCors("AllowAllOrigins");
 
 app.UseHttpsRedirection();
+
+app.UseStaticFiles();
+
+app.UseMiddleware<ExceptionHandlerMiddleware>();
 
 app.UseAuthentication();
 

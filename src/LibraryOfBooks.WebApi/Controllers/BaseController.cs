@@ -5,7 +5,7 @@ namespace LibraryOfBooks.WebApi.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-//[Authorize(Roles = "Admin, SuperAdmin")]
+[Authorize]
 public class BaseController : ControllerBase
 {
 }

@@ -8,6 +8,7 @@ using LibraryOfBooks.Service.DTOs.Assets;
 using LibraryOfBooks.Service.DTOs.Books;
 using LibraryOfBooks.Service.Exceptions;
 using LibraryOfBooks.Service.Extensions;
+using LibraryOfBooks.Service.Helpers;
 using LibraryOfBooks.Service.Interfaces;
 using LibraryOfBooks.Service.Validators.Books;
 using Microsoft.EntityFrameworkCore;
@@ -24,7 +25,6 @@ public class BookService : IBookService
     private readonly IRepository<BookCategory> categoryRepository;
     private readonly IValidator<BookUpdateDto> bookUpdateDtoValidator;
     private readonly IValidator<BookCreationDto> bookCreationDtoValidator;
-    private PaginationParams @params;
 
     public BookService(IMapper mapper,
         IAssetService assetService,
@@ -70,7 +70,7 @@ public class BookService : IBookService
             Category = category,
             CategoryId = dto.CategoryId,
             User = user,
-            UserId = dto.UserId,
+            UserId = dto.UserId ?? 0,
             Image = updloadedImage,
             ImageId = updloadedImage.Id,
             File = updloadedFile,
@@ -157,7 +157,7 @@ public class BookService : IBookService
         book.Title = dto.Title;
         book.Description = dto.Description;
         book.CategoryId = dto.CategoryId;
-        book.UserId = dto.UserId;
+        book.UserId = dto.UserId ?? 0;
         book.Author = dto.Author;
 
         this.bookRepository.Update(book);
@@ -166,10 +166,9 @@ public class BookService : IBookService
         return this.mapper.Map<BookResultDto>(book);
     }
 
-    public async ValueTask<IEnumerable<BookResultDto>> RetrieveAllAsync(PaginationParams @params, string search = null)
+    public async ValueTask<IEnumerable<BookResultDto>> RetrieveAllAsync(string search = null)
     {
         var books = await this.bookRepository.SelectAll(includes: new[] { "Image", "File" })
-            .ToPaginate(@params)
             .ToListAsync();
 
         if (search is not null)
@@ -187,8 +186,10 @@ public class BookService : IBookService
         return this.mapper.Map<IEnumerable<BookResultDto>>(books);
     }
 
-    public async ValueTask<bool> AddFavoriteBookAsync(long userId, long bookId)
+    public async ValueTask<bool> AddFavoriteBookAsync(long bookId)
     {
+        var userId = HttpContextHelper.GetUserId();
+
         var user = await userRepository.SelectAsync(u => u.Id.Equals(userId))
             ?? throw new NotFoundException($"This user not found with {userId}");
 
@@ -201,7 +202,7 @@ public class BookService : IBookService
 
         var Favorite = new Favorite()
         {
-            UserId = userId,
+            UserId = userId ?? 0,
             BookId = bookId,
         };
 
@@ -211,8 +212,10 @@ public class BookService : IBookService
         return true;
     }
 
-    public async ValueTask<bool> DeleteFavoriteBookAsync(long userId, long bookId)
+    public async ValueTask<bool> DeleteFavoriteBookAsync(long bookId)
     {
+        var userId = HttpContextHelper.GetUserId();
+
         var user = await userRepository.SelectAsync(u => u.Id.Equals(userId))
             ?? throw new NotFoundException($"This user not found with {userId}");
 
@@ -229,8 +232,10 @@ public class BookService : IBookService
         return true;
     }
 
-    public async ValueTask<IEnumerable<BookResultDto>> GetAllFavoriteBookAsync(long userId)
+    public async ValueTask<IEnumerable<BookResultDto>> GetAllFavoriteBookAsync()
     {
+        var userId = HttpContextHelper.GetUserId();
+
         var user = await userRepository.SelectAsync(u => u.Id.Equals(userId))
             ?? throw new NotFoundException($"This user not found with {userId}");
 
@@ -243,10 +248,11 @@ public class BookService : IBookService
         return this.mapper.Map<IEnumerable<BookResultDto>>(books);
     }
 
-    public async ValueTask<IEnumerable<BookResultDto>> RetrieveByUserIdAsync(PaginationParams @params, long userId)
+    public async ValueTask<IEnumerable<BookResultDto>> RetrieveByUserIdAsync()
     {
+        var userId = HttpContextHelper.GetUserId();
+
         var books = await this.bookRepository.SelectAll(br => br.UserId.Equals(userId), includes: new[] { "Image", "File" })
-            .ToPaginate(@params)
             .ToListAsync();
 
         return this.mapper.Map<IEnumerable<BookResultDto>>(books);

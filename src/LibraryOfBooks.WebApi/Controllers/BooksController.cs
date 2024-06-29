@@ -1,5 +1,6 @@
 ﻿using LibraryOfBooks.Domain.Configurations;
 using LibraryOfBooks.Service.DTOs.Books;
+using LibraryOfBooks.Service.Helpers;
 using LibraryOfBooks.Service.Interfaces;
 using LibraryOfBooks.WebApi.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -15,24 +16,33 @@ public class BooksController : BaseController
         this.bookService = bookService;
     }
 
+
     [HttpPost("create")]
     public async Task<IActionResult> PostAsync([FromForm] BookCreationDto dto)
-        => Ok(new Response
+    {
+        dto.UserId = HttpContextHelper.GetUserId();
+
+        return Ok(new Response
         {
             StatusCode = 200,
             Message = "Success",
             Data = await this.bookService.AddAsync(dto)
         });
+    }
 
     [HttpPut("update")]
     public async Task<IActionResult> UpdateAsync([FromBody] BookUpdateDto dto)
-        => Ok(new Response
-        {
-            StatusCode = 200,
-            Message = "Success",
-            Data = await this.bookService.ModifyAsync(dto)
-        });
+    { 
+        dto.UserId = HttpContextHelper.GetUserId();
 
+        return Ok(new Response
+           {
+               StatusCode = 200,
+               Message = "Success",
+               Data = await this.bookService.ModifyAsync(dto)
+           });
+    }
+    
     [HttpDelete("delete/{id:long}")]
     public async Task<IActionResult> DeleteAsync(long id)
         => Ok(new Response
@@ -54,24 +64,22 @@ public class BooksController : BaseController
 
     [AllowAnonymous]
     [HttpGet("get-all")]
-    public async ValueTask<IActionResult> GetAllAsync(
-        [FromQuery] PaginationParams @params)
+    public async ValueTask<IActionResult> GetAllAsync()
         => Ok(new Response
         {
             StatusCode = 200,
             Message = "Success",
-            Data = await this.bookService.RetrieveAllAsync(@params)
+            Data = await this.bookService.RetrieveAllAsync()
         });
 
-    [AllowAnonymous]
-    [HttpGet("get-by-user-id/{userId:long}")]
-    public async ValueTask<IActionResult> GetByUserIdAsync(
-       [FromQuery] PaginationParams @params, long userId)
+    
+    [HttpGet("get-by-user-id")]
+    public async ValueTask<IActionResult> GetByUserIdAsync()
        => Ok(new Response
        {
            StatusCode = 200,
            Message = "Success",
-           Data = await this.bookService.RetrieveByUserIdAsync(@params, userId)
+           Data = await this.bookService.RetrieveByUserIdAsync()
        });
 
     [AllowAnonymous]
@@ -84,30 +92,33 @@ public class BooksController : BaseController
             Data = await this.bookService.RetrieveAllByCategoryIdAsync(categoryId)
         });
 
+    
     [HttpPost("add-favorite-book")]
-    public async ValueTask<IActionResult> AddFavoriteBookAsync(long userId, long bookId)
+    public async ValueTask<IActionResult> AddFavoriteBookAsync(long bookId)
         => Ok(new Response
         {
             StatusCode = 200,
             Message = "Success",
-            Data = await this.bookService.AddFavoriteBookAsync(userId, bookId)
+            Data = await this.bookService.AddFavoriteBookAsync(bookId)
         });
 
+    
     [HttpDelete("delete-favorite-book")]
-    public async ValueTask<IActionResult> DeleteFavoriteBookAsync(long userId, long bookId)
+    public async ValueTask<IActionResult> DeleteFavoriteBookAsync(long bookId)
         => Ok(new Response
         {
             StatusCode = 200,
             Message = "Success",
-            Data = await this.bookService.DeleteFavoriteBookAsync(userId, bookId)
+            Data = await this.bookService.DeleteFavoriteBookAsync(bookId)
         });
+
 
     [HttpGet("get-all-favorite")]
-    public async ValueTask<IActionResult> GetAllFavoriteAsync(long userId)
+    public async ValueTask<IActionResult> GetAllFavoriteAsync()
         => Ok(new Response
         {
             StatusCode = 200,
             Message = "Success",
-            Data = await this.bookService.GetAllFavoriteBookAsync(userId)
+            Data = await this.bookService.GetAllFavoriteBookAsync()
         });
 }

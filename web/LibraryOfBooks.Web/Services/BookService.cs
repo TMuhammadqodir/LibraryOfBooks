@@ -73,9 +73,9 @@ public class BookService
         return response;
     }
 
-    public async Task<Response<IEnumerable<BookResultDto>>> GetByUserIdBooksAsync(long userId)
+    public async Task<Response<IEnumerable<BookResultDto>>> GetByUserIdBooksAsync()
     {
-        var response = await _httpClient.GetFromJsonAsync<Response<IEnumerable<BookResultDto>>>($"api/books/get-by-user-id/{userId}");
+        var response = await _httpClient.GetFromJsonAsync<Response<IEnumerable<BookResultDto>>>($"api/books/get-by-user-id");
         return response;
     }
 
@@ -85,21 +85,21 @@ public class BookService
         return response;
     }
 
-    public async Task<Response<bool>> AddFavoriteBookAsync(long userId, long bookId)
+    public async Task<Response<bool>> AddFavoriteBookAsync(long bookId)
     {
-        var response = await _httpClient.PostAsJsonAsync($"api/books/add-favorite-book?userId={userId}&bookId={bookId}", new { });
+        var response = await _httpClient.PostAsJsonAsync($"api/books/add-favorite-book?bookId={bookId}", new { });
         return await response.Content.ReadFromJsonAsync<Response<bool>>();
     }
 
-    public async Task<Response<bool>> DeleteFavoriteBookAsync(long userId, long bookId)
+    public async Task<Response<bool>> DeleteFavoriteBookAsync(long bookId)
     {
-        var response = await _httpClient.DeleteAsync($"api/books/delete-favorite-book?userId={userId}&bookId={bookId}");
+        var response = await _httpClient.DeleteAsync($"api/books/delete-favorite-book?bookId={bookId}");
         return await response.Content.ReadFromJsonAsync<Response<bool>>();
     }
 
-    public async Task<Response<IEnumerable<BookResultDto>>> GetAllFavoriteBooksAsync(long userId)
+    public async Task<Response<IEnumerable<BookResultDto>>> GetAllFavoriteBooksAsync()
     {
-        var response = await _httpClient.GetFromJsonAsync<Response<IEnumerable<BookResultDto>>>($"api/books/get-all-favorite?userId={userId}");
+        var response = await _httpClient.GetFromJsonAsync<Response<IEnumerable<BookResultDto>>>($"api/books/get-all-favorite");
         return response;
     }
 }
