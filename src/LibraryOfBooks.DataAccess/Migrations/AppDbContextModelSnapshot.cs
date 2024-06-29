@@ -130,6 +130,92 @@ namespace LibraryOfBooks.Dataccess.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("BookCategories");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1L,
+                            CreatedAt = new DateTime(2024, 6, 29, 8, 53, 38, 322, DateTimeKind.Utc).AddTicks(2651),
+                            IsDeleted = false,
+                            Name = "Adabiyot"
+                        },
+                        new
+                        {
+                            Id = 2L,
+                            CreatedAt = new DateTime(2024, 6, 29, 8, 53, 38, 322, DateTimeKind.Utc).AddTicks(2653),
+                            IsDeleted = false,
+                            Name = "Ilmiy-fantastika"
+                        },
+                        new
+                        {
+                            Id = 3L,
+                            CreatedAt = new DateTime(2024, 6, 29, 8, 53, 38, 322, DateTimeKind.Utc).AddTicks(2655),
+                            IsDeleted = false,
+                            Name = "Fantaziya"
+                        },
+                        new
+                        {
+                            Id = 4L,
+                            CreatedAt = new DateTime(2024, 6, 29, 8, 53, 38, 322, DateTimeKind.Utc).AddTicks(2656),
+                            IsDeleted = false,
+                            Name = "Detektiv va Triller"
+                        },
+                        new
+                        {
+                            Id = 5L,
+                            CreatedAt = new DateTime(2024, 6, 29, 8, 53, 38, 322, DateTimeKind.Utc).AddTicks(2657),
+                            IsDeleted = false,
+                            Name = "Romantika"
+                        },
+                        new
+                        {
+                            Id = 6L,
+                            CreatedAt = new DateTime(2024, 6, 29, 8, 53, 38, 322, DateTimeKind.Utc).AddTicks(2658),
+                            IsDeleted = false,
+                            Name = "Ilmiy"
+                        },
+                        new
+                        {
+                            Id = 7L,
+                            CreatedAt = new DateTime(2024, 6, 29, 8, 53, 38, 322, DateTimeKind.Utc).AddTicks(2660),
+                            IsDeleted = false,
+                            Name = "Biznes va Iqtisodiyot"
+                        },
+                        new
+                        {
+                            Id = 8L,
+                            CreatedAt = new DateTime(2024, 6, 29, 8, 53, 38, 322, DateTimeKind.Utc).AddTicks(2661),
+                            IsDeleted = false,
+                            Name = "O'z-o'zini rivojlantirish"
+                        },
+                        new
+                        {
+                            Id = 9L,
+                            CreatedAt = new DateTime(2024, 6, 29, 8, 53, 38, 322, DateTimeKind.Utc).AddTicks(2662),
+                            IsDeleted = false,
+                            Name = "Tarix"
+                        },
+                        new
+                        {
+                            Id = 10L,
+                            CreatedAt = new DateTime(2024, 6, 29, 8, 53, 38, 322, DateTimeKind.Utc).AddTicks(2663),
+                            IsDeleted = false,
+                            Name = "Bolalar adabiyoti"
+                        },
+                        new
+                        {
+                            Id = 11L,
+                            CreatedAt = new DateTime(2024, 6, 29, 8, 53, 38, 322, DateTimeKind.Utc).AddTicks(2664),
+                            IsDeleted = false,
+                            Name = "San'at va Madaniyat"
+                        },
+                        new
+                        {
+                            Id = 12L,
+                            CreatedAt = new DateTime(2024, 6, 29, 8, 53, 38, 322, DateTimeKind.Utc).AddTicks(2665),
+                            IsDeleted = false,
+                            Name = "Bolalar adabiyoti"
+                        });
                 });
 
             modelBuilder.Entity("LibraryOfBooks.Domain.Entities.Favorite", b =>

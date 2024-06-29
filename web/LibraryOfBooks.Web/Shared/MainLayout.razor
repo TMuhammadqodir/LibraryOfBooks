@@ -35,9 +35,14 @@
 
     protected override async Task OnInitializedAsync()
     {
+        await CheckAuthenticationState();
+        AuthenticationStateProvider.AuthenticationStateChanged += OnAuthenticationStateChanged;
+    }
+
+    private async Task CheckAuthenticationState()
+    {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         isAuthenticated = authState.User.Identity.IsAuthenticated;
-        AuthenticationStateProvider.AuthenticationStateChanged += OnAuthenticationStateChanged;
     }
 
     private void Login()
@@ -48,13 +53,13 @@
     private async Task Logout()
     {
         await AuthService.LogoutAsync();
+        await CheckAuthenticationState();
         NavigationManager.NavigateTo("login");
     }
 
-    private void OnAuthenticationStateChanged(Task<AuthenticationState> task)
+    private async void OnAuthenticationStateChanged(Task<AuthenticationState> task)
     {
-        var authState = task.Result;
-        isAuthenticated = authState.User.Identity.IsAuthenticated;
+        await CheckAuthenticationState();
         StateHasChanged();
     }
 
