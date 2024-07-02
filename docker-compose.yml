@@ -18,6 +18,9 @@ services:
       - POSTGRES_PASSWORD=root
       - POSTGRES_DB=LibraryOfBooksDb
     volumes:
-      - ./.containers/libraryofbooks-db:/var/lib/postgresql/data
+      - libraryofbooks-db-data:/var/lib/postgresql/data
     ports:
       - "5433:5432"
+
+volumes:
+  libraryofbooks-db-data:
