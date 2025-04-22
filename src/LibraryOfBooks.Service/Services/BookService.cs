@@ -22,6 +22,7 @@ public class BookService : IBookService
     private readonly IRepository<Book> bookRepository;
     private readonly IRepository<User> userRepository;
     private readonly IRepository<Favorite> favoriteRepository;
+    private readonly IRepository<Like> likeRepository;
     private readonly IRepository<BookCategory> categoryRepository;
     private readonly IValidator<BookUpdateDto> bookUpdateDtoValidator;
     private readonly IValidator<BookCreationDto> bookCreationDtoValidator;
@@ -30,6 +31,7 @@ public class BookService : IBookService
         IAssetService assetService,
         IRepository<Book> bookRepository,
         IRepository<User> userRepository,
+        IRepository<Like> likeRepository,
         IRepository<Favorite> favoriteRepository,
         IRepository<BookCategory> categoryRepository,
         IValidator<BookUpdateDto> bookUpdateDtoValidator,
@@ -39,6 +41,7 @@ public class BookService : IBookService
         this.assetService = assetService;
         this.userRepository = userRepository;
         this.bookRepository = bookRepository;
+        this.likeRepository = likeRepository;
         this.categoryRepository = categoryRepository;
         this.favoriteRepository = favoriteRepository;
         this.bookUpdateDtoValidator = bookUpdateDtoValidator;
@@ -244,6 +247,68 @@ public class BookService : IBookService
             .ToListAsync();
 
         var books = favorites.Select(f => f.Book).ToList();
+
+        return this.mapper.Map<IEnumerable<BookResultDto>>(books);
+    }
+
+    public async ValueTask<bool> AddLikeBookAsync(long bookId)
+    {
+        var userId = HttpContextHelper.GetUserId();
+
+        var user = await userRepository.SelectAsync(u => u.Id.Equals(userId))
+            ?? throw new NotFoundException($"This user not found with {userId}");
+
+        var book = await bookRepository.SelectAsync(b => b.Id.Equals(bookId))
+            ?? throw new NotFoundException($"This book not found with {bookId}");
+
+        var like = await this.likeRepository.SelectAsync(f => f.UserId.Equals(userId)
+            && f.BookId.Equals(bookId));
+        if (like is not null) throw new AlreadyExistException("This like already exist");
+
+        var Like = new Like()
+        {
+            UserId = userId ?? 0,
+            BookId = bookId,
+        };
+
+        var result = await this.likeRepository.InsertAsync(Like);
+        await this.likeRepository.SaveAsync();
+
+        return true;
+    }
+
+    public async ValueTask<bool> DeleteLikeBookAsync(long bookId)
+    {
+        var userId = HttpContextHelper.GetUserId();
+
+        var user = await userRepository.SelectAsync(u => u.Id.Equals(userId))
+            ?? throw new NotFoundException($"This user not found with {userId}");
+
+        var book = await bookRepository.SelectAsync(b => b.Id.Equals(bookId))
+            ?? throw new NotFoundException($"This book not found with {bookId}");
+
+        var like = await this.likeRepository.SelectAsync(f => f.UserId.Equals(userId)
+            && f.BookId.Equals(bookId))
+            ?? throw new NotFoundException("This favorite not found");
+
+        this.likeRepository.Delete(like);
+        await this.likeRepository.SaveAsync();
+
+        return true;
+    }
+
+    public async ValueTask<IEnumerable<BookResultDto>> GetAllLikeBookAsync()
+    {
+        var userId = HttpContextHelper.GetUserId();
+
+        var user = await userRepository.SelectAsync(u => u.Id.Equals(userId))
+            ?? throw new NotFoundException($"This user not found with {userId}");
+
+        var likes = await this.likeRepository.SelectAll(f => f.UserId.Equals(userId),
+            includes: new[] { "Book.File", "Book.Image" })
+            .ToListAsync();
+
+        var books = likes.Select(f => f.Book).ToList();
 
         return this.mapper.Map<IEnumerable<BookResultDto>>(books);
     }

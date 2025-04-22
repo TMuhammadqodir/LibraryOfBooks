@@ -12,6 +12,8 @@ public class AppDbContext : DbContext
     public DbSet<Asset> Assets { get; set; }
     public DbSet<Favorite> Favorites { get; set; }
     public DbSet<BookCategory> BookCategories { get; set; }
+    public DbSet<Like> Likes { get; set; }
+    public DbSet<Comment> Comments { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -20,6 +22,8 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<User>().HasQueryFilter(u => !u.IsDeleted);
         modelBuilder.Entity<Asset>().HasQueryFilter(u => !u.IsDeleted);
         modelBuilder.Entity<Favorite>().HasQueryFilter(u => !u.IsDeleted);
+        modelBuilder.Entity<Like>().HasQueryFilter(u => !u.IsDeleted);
+        modelBuilder.Entity<Comment>().HasQueryFilter(u => !u.IsDeleted);
         modelBuilder.Entity<BookCategory>().HasQueryFilter(u => !u.IsDeleted);
         #endregion
 

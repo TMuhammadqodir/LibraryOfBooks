@@ -121,4 +121,33 @@ public class BooksController : BaseController
             Message = "Success",
             Data = await this.bookService.GetAllFavoriteBookAsync()
         });
+
+    [HttpPost("add-like-book")]
+    public async ValueTask<IActionResult> AddLikeBookAsync(long bookId)
+    => Ok(new Response
+    {
+        StatusCode = 200,
+        Message = "Success",
+        Data = await this.bookService.AddLikeBookAsync(bookId)
+    });
+
+
+    [HttpDelete("delete-like-book")]
+    public async ValueTask<IActionResult> DeleteLikeBookAsync(long bookId)
+        => Ok(new Response
+        {
+            StatusCode = 200,
+            Message = "Success",
+            Data = await this.bookService.DeleteLikeBookAsync(bookId)
+        });
+
+
+    [HttpGet("get-all-like")]
+    public async ValueTask<IActionResult> GetAllLikeAsync()
+        => Ok(new Response
+        {
+            StatusCode = 200,
+            Message = "Success",
+            Data = await this.bookService.GetAllLikeBookAsync()
+        });
 }

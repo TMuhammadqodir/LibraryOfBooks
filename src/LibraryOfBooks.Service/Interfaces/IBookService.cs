@@ -15,4 +15,7 @@ public interface IBookService
     ValueTask<bool> AddFavoriteBookAsync(long bookId);
     ValueTask<bool> DeleteFavoriteBookAsync(long bookId);
     ValueTask<IEnumerable<BookResultDto>> GetAllFavoriteBookAsync();
+    ValueTask<bool> AddLikeBookAsync(long bookId);
+    ValueTask<bool> DeleteLikeBookAsync(long bookId);
+    ValueTask<IEnumerable<BookResultDto>> GetAllLikeBookAsync();
 }

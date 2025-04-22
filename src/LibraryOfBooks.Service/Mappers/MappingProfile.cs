@@ -3,6 +3,7 @@ using LibraryOfBooks.Domain.Entities;
 using LibraryOfBooks.Service.DTOs.Assets;
 using LibraryOfBooks.Service.DTOs.BookCategories;
 using LibraryOfBooks.Service.DTOs.Books;
+using LibraryOfBooks.Service.DTOs.Comments;
 using LibraryOfBooks.Service.DTOs.Users;
 
 namespace LibraryOfBooks.Service.Mappers;
@@ -17,6 +18,10 @@ public class MappingProfile : Profile
         CreateMap<Book, BookCreationDto>().ReverseMap();
         CreateMap<Book, BookUpdateDto>().ReverseMap();
         CreateMap<Book, BookResultDto>().ReverseMap();
+
+        CreateMap<Comment, CommentCreationDto>().ReverseMap();
+        CreateMap<Comment, CommentUpdateDto>().ReverseMap();
+        CreateMap<Comment, CommentResultDto>().ReverseMap();
 
         CreateMap<User, UserCreationDto>().ReverseMap();
         CreateMap<User, UserUpdateDto>().ReverseMap();
